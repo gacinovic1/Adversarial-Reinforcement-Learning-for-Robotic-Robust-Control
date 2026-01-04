@@ -59,7 +59,8 @@ class ENV_Adversarial_wrapper(gym.Wrapper):
                    action_range : list[float, float], 
                adv_action_range : list[float, float], 
                     render_mode : str    = None, 
-                is_norm_wrapper : bool   = True, algorithm : str = 'SAC') -> None:
+                is_norm_wrapper : bool   = True, 
+                algorithm : str = 'SAC') -> None:
                
 
         self.env_name = env_name
@@ -79,8 +80,8 @@ class ENV_Adversarial_wrapper(gym.Wrapper):
 
     def _scale_action(self, action, adv_action_range):
         
-         if self.algorithm == 'PPO' or self.algorithm == 'RARL_PPO':
-            return np.array(action.squeeze(0).cpu()) * self.act_diff + self.act_min # scale action in range [act_min, act_max]
+         if self.algorithm == 'PPO' or self.algorithm == 'RARL_PPO' or self.algorithm == 'RARL':
+            return (action * (adv_action_range[1] - adv_action_range[0])) + adv_action_range[0] # scale action in range [act_min, act_max]
         
          if self.algorithm == 'SAC' or self.algorithm == 'RARL_SAC':
              return torch.tanh(action).squeeze(0).cpu().detach().numpy()
