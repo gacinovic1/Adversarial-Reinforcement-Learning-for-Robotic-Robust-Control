@@ -80,7 +80,7 @@ class SoftQNetwork_SAC(nn.Module):
 
 
 class PolicyNetwork_SAC(nn.Module):
-    def __init__(self, n_inputs = 17, n_outputs = 6, init_w=3e-3) -> None:
+    def __init__(self, n_inputs = 17, n_outputs = 6, init_w=3e-4) -> None:
         super().__init__()
 
         self.linear1 = nn.Linear(n_inputs, 256)
@@ -99,7 +99,7 @@ class PolicyNetwork_SAC(nn.Module):
         x = F.relu(self.linear2(x))
         mean = self.mean_linear(x)
         log_std = self.log_std_linear(x)
-        log_std = torch.clamp(log_std, -20, 2)
+        log_std = torch.clamp(log_std, -5, 1)
 
         return mean, log_std
     

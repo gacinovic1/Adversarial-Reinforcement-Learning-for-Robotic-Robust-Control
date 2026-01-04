@@ -59,7 +59,8 @@ class SAC():
                  lr_pi          : float = 1e-3,
                  gamma          : float = 0.99,
                  tau        : float = 1e-2,
-                 alpha  : float = 0.2,
+                 log_alpha  : float = 0.0,
+                 lr_alpha    : float = 3e-4,
                  epsilon        : float = 1e-6,
                  criticV_weight  : float = 0.5,
                  criticQ_weight  : float = 0.5,
@@ -80,7 +81,9 @@ class SAC():
         self.gamma = gamma
         self.tau = tau
         self.epsilon = epsilon
-        self.alpha = alpha
+        self.log_alpha = torch.tensor(log_alpha,requires_grad=True)
+        self.alpha = self.log_alpha.exp()
+        self.lr_alpha = lr_alpha
         self.criticV_weight = criticV_weight
         self.criticQ_weight = criticQ_weight
         self.device = device
@@ -100,6 +103,25 @@ class SAC():
         if self.distribution == 'Normal':
             dist = Normal(par1, par2)
         return dist
+    
+    def get_action(self, state):
+        
+        # extract the new disribution from actor
+        mean, log_std = self.NN_pi.forward(state)
+        std = log_std.exp()
+        dist = Normal(0, 1)
+                
+        # compute new log prob using new actions
+            
+        z = dist.sample(mean.shape).to(self.device)
+        new_actions =  torch.tanh(mean + std*z).to(self.device)
+
+        new_log_prob = dist.log_prob(mean + std*z).sum(dim=-1, keepdim=True)       
+        new_log_prob -= torch.log(1 - new_actions.pow(2) + self.epsilon).sum(dim=-1, keepdim=True)
+        
+        return new_actions, new_log_prob
+            
+        
 
     # method for run the evironment using state already converted in tensor
     def act(self, state) -> list[float]:
@@ -122,14 +144,10 @@ class SAC():
             
             state, action, reward, next_state, done = self.replay_buffer.sample(mini_batch)
             
-            state      = state.to(self.device)
             next_state = next_state.to(self.device)
             action     = action.to(self.device)
             reward     = torch.FloatTensor(reward).unsqueeze(1).to(self.device)
             done       = torch.FloatTensor(done).unsqueeze(1).to(self.device)
-            
-            
-            
             
             mean_actor_loss = 0
             mean_V_loss = 0
@@ -139,19 +157,9 @@ class SAC():
             # predict state value
             V = self.NN_V(state)
 
-            # extract the new disribution from actor
-            mean, log_std = self.NN_pi.forward(state)
-            std = log_std.exp()
-            dist = Normal(0, 1)
-                
-            # compute new log prob using new actions
-            
-            z = dist.sample(mean.shape).to(self.device)
-            new_actions =  torch.tanh(mean + std*z).to(self.device)
-
-            new_log_prob = dist.log_prob(mean + std*z).sum(dim=-1, keepdim=True)       
-            new_log_prob -= torch.log(1 - new_actions.pow(2) + self.epsilon).sum(dim=-1, keepdim=True)
-            
+            # predict actions and log_probs
+            new_actions, new_log_prob = self.get_action(state)
+           
             #  Get new Q value from the Q networks 
             new_Q = torch.min(self.NN_Q1(state, new_actions), self.NN_Q2(state, new_actions))
 
@@ -166,7 +174,6 @@ class SAC():
             #  Predict Q1 and Q2 values
             Q1 = self.NN_Q1(state, action)         
             Q2 = self.NN_Q2(state, action)
-            
             
             # predict target value for Q (Q_hat)
             target_value_next = self.NN_V_target(next_state) 
@@ -184,11 +191,11 @@ class SAC():
             self.optim_Q2.zero_grad()
             loss_Q2.backward()
             self.optim_Q2.step()
-        
             
             # policy loss
             new_Q_prime = torch.min(self.NN_Q1(state, new_actions), self.NN_Q2(state, new_actions))
-            actor_loss  = (new_log_prob*self.alpha - new_Q_prime).mean()
+            self.alpha = self.log_alpha.exp()
+            actor_loss  = (new_log_prob*self.alpha.detach() - new_Q_prime).mean()
             
             # policy backward
             self.optim_pi.zero_grad()
@@ -199,6 +206,18 @@ class SAC():
             for target_param, param in zip(self.NN_V_target.parameters(), self.NN_V.parameters()):
 
                 target_param.data.copy_(target_param.data * (1.0 - self.tau) + param.data * self.tau)
+                
+            # alpha loss
+            with torch.no_grad():
+                
+                _ , new_log_prob1 = self.get_action(state)
+            
+            target_entropy = -1.5 * new_actions.size(-1) 
+            alpha_loss = -(self.log_alpha * (new_log_prob1 + target_entropy).detach()).mean()
+            
+            self.optim_alpha.zero_grad()
+            alpha_loss.backward()
+            self.optim_alpha.step()
             
             # compute overall loss
             loss = actor_loss.item() + self.criticQ_weight*(loss_Q1.item() + loss_Q2.item()) + self.criticV_weight * V_loss.item() 
@@ -221,6 +240,7 @@ class SAC():
         self.optim_Q1 = torch.optim.Adam(self.NN_Q1.parameters(), lr = self.lr_Q, maximize=False)
         self.optim_Q2 = torch.optim.Adam(self.NN_Q2.parameters(), lr = self.lr_Q, maximize=False)
         self.optim_pi = torch.optim.Adam(self.NN_pi.parameters(), lr = self.lr_pi, maximize=False)
+        self.optim_alpha = torch.optim.Adam([self.log_alpha], lr = self.lr_alpha, maximize=False)
 
         # repeat for the number of episodes
         for episode in range(episodes):
@@ -244,7 +264,7 @@ class SAC():
                 z = dist.sample(mean.shape).to(self.device)
                 action_pre =  mean + std*z
                 action = torch.tanh(action_pre).detach()
-                
+
                 steps += 1
         
                 # take a step in the environment
