@@ -66,6 +66,8 @@ class SAC():
                  criticQ_weight  : float = 0.5,
                  print_flag     : bool  = True,
                  save_interval  : int   = 10,
+                 capacity      : int   = 100_000,
+                 freq_upd      : int   = 1000,
                  device=torch.device('cpu'),
                  name = 'model') -> None:
 
@@ -87,7 +89,8 @@ class SAC():
         self.criticV_weight = criticV_weight
         self.criticQ_weight = criticQ_weight
         self.device = device
-        self.replay_buffer = ReplayBuffer(capacity=10000000)
+        self.replay_buffer = ReplayBuffer(capacity)
+        self.freq_upd = freq_upd 
 
         self.save_interval = save_interval
         self.model_name = name
@@ -212,7 +215,7 @@ class SAC():
                 
                 _ , new_log_prob1 = self.get_action(state)
             
-            target_entropy = -1.5 * new_actions.size(-1) 
+            target_entropy = -1.0 * new_actions.size(-1) 
             alpha_loss = -(self.log_alpha * (new_log_prob1 + target_entropy).detach()).mean()
             
             self.optim_alpha.zero_grad()
@@ -273,7 +276,7 @@ class SAC():
                 
                 self.replay_buffer.push(state, action, reward, next_state, done)
                 
-                if len(self.replay_buffer) > mini_batch and steps % 2 == 0:
+                if len(self.replay_buffer) > mini_batch and steps % self.freq_upd == 0:
                     
                     # starting the updating epoches
                     if self.print_flag: print("[T]: starting SAC iterations")
@@ -291,7 +294,8 @@ class SAC():
                 if done:
                     if self.print_flag: print("/", end='', flush=True)
                     tranches += 1
-                    break
+                    state, _ = self.env.reset()
+                    continue
                 
             print(f"[T]: end episode {episode} windows: | {window} | mean rewards: {mean_rew/tranches}")
                 

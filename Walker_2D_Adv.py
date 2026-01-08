@@ -48,7 +48,7 @@ class ValueNetwork_SAC(nn.Module):
 
         self.linear1 = nn.Linear(n_inputs , 256)
         self.linear2 = nn.Linear(256, 256)
-        self.linear3 = nn.Linear(256, 1)
+        self.linear3 = nn.Linear(256, n_outputs)
 
         self.linear3.weight.data.uniform_(-init_w, init_w)
         self.linear3.bias.data.uniform_(-init_w, init_w)
@@ -66,7 +66,7 @@ class SoftQNetwork_SAC(nn.Module):
 
         self.linear1 = nn.Linear(n_inputs, 256)
         self.linear2 = nn.Linear(256, 256)
-        self.linear3 = nn.Linear(256, 1)
+        self.linear3 = nn.Linear(256, n_outputs)
 
         self.linear3.weight.data.uniform_(-init_w, init_w)
         self.linear3.bias.data.uniform_(-init_w, init_w)
@@ -241,7 +241,7 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
         
     elif alg == 'SAC':
         sac = SAC_RARL.SAC(player['value'], player['value_target'], player['Q1'], player ['Q2'], player['policy'], env, print_flag=False, lr_V=1e-4, lr_Q=1e-4, lr_pi=1e-4, name='Walker_2D_model_SAC')
-        if train: sac.train(episodes=1000, epoch=1, mini_batch=128, max_steps_rollouts=1024, continue_prev_train=False)
+        if train: sac.train(episodes=1000, epoch=10, mini_batch=32, max_steps_rollouts=1024, continue_prev_train=False)
         sac.load()
 
     env.close()
