@@ -42,34 +42,23 @@ class Walker_NN_PPO(nn.Module):
         return alpha, beta, V
     
 
-class ValueNetwork_SAC(nn.Module):
-    def __init__(self, n_inputs = 17, n_outputs = 1, init_w=3e-3) -> None:
-        super().__init__()
-
-        self.linear1 = nn.Linear(n_inputs , 256)
-        self.linear2 = nn.Linear(256, 256)
-        self.linear3 = nn.Linear(256, n_outputs)
-
-        self.linear3.weight.data.uniform_(-init_w, init_w)
-        self.linear3.bias.data.uniform_(-init_w, init_w)
-
-    def forward(self, state):
-        x = F.relu(self.linear1(state))
-        x = F.relu(self.linear2(x))
-        x = self.linear3(x)
-        return x
-
 
 class SoftQNetwork_SAC(nn.Module):
-    def __init__(self, n_inputs = 17 + 6, n_outputs = 1, init_w=3e-3) -> None:
+    def __init__(self, n_inputs = 17 + 6, n_outputs = 1) -> None:
         super().__init__()
 
         self.linear1 = nn.Linear(n_inputs, 256)
         self.linear2 = nn.Linear(256, 256)
         self.linear3 = nn.Linear(256, n_outputs)
-
-        self.linear3.weight.data.uniform_(-init_w, init_w)
-        self.linear3.bias.data.uniform_(-init_w, init_w)
+        
+        # inizialization of weights in a xavier uniform manner and bias to zero
+        gain = torch.nn.init.calculate_gain('relu')
+        torch.nn.init.xavier_uniform_(self.linear1.weight, gain)
+        torch.nn.init.constant_(self.linear1.bias, 0)
+        torch.nn.init.xavier_uniform_(self.linear2.weight, gain)
+        torch.nn.init.constant_(self.linear2.bias, 0)
+        torch.nn.init.xavier_uniform_(self.linear3.weight, gain)
+        torch.nn.init.constant_(self.linear3.bias, 0)
 
     def forward(self, state, action):
         x = torch.cat([state, action], 1)
@@ -80,26 +69,30 @@ class SoftQNetwork_SAC(nn.Module):
 
 
 class PolicyNetwork_SAC(nn.Module):
-    def __init__(self, n_inputs = 17, n_outputs = 6, init_w=3e-4) -> None:
+    def __init__(self, n_inputs = 17, n_outputs = 6) -> None:
         super().__init__()
 
         self.linear1 = nn.Linear(n_inputs, 256)
         self.linear2 = nn.Linear(256, 256)
 
         self.mean_linear = nn.Linear(256, n_outputs)
-        self.mean_linear.weight.data.uniform_(-init_w, init_w)
-        self.mean_linear.bias.data.uniform_(-init_w, init_w)
-
         self.log_std_linear = nn.Linear(256, n_outputs) 
-        self.log_std_linear.weight.data.uniform_(-init_w, init_w)
-        self.log_std_linear.bias.data.uniform_(-init_w, init_w)
+        
+        # inizialization of weights in a xavier uniform manner and bias to zero
+        gain = torch.nn.init.calculate_gain('relu')
+        torch.nn.init.xavier_uniform_(self.linear1.weight, gain)
+        torch.nn.init.constant_(self.linear1.bias, 0)
+        torch.nn.init.xavier_uniform_(self.linear2.weight, gain)
+        torch.nn.init.constant_(self.linear2.bias, 0)
+        torch.nn.init.xavier_uniform_(self.log_std_linear.weight, gain)
+        torch.nn.init.constant_(self.log_std_linear.bias, 0)
 
     def forward(self, x):
         x = F.relu(self.linear1(x))
         x = F.relu(self.linear2(x))
         mean = self.mean_linear(x)
         log_std = self.log_std_linear(x)
-        log_std = torch.clamp(log_std, -5, 1)
+        log_std = torch.clamp(log_std, -20, 2)
 
         return mean, log_std
     
@@ -140,6 +133,8 @@ class Walker_env_pert(ENV_Wrapper.ENV_Adversarial_wrapper):
         return self._postprocess_state(state), reward, terminated, truncated, info
 
 def Test(RL, env, steps = 10_000):
+    
+    env.update_running_stats = False 
     s, _ = env.reset()
     reward = 0
     attempts = 1
@@ -181,15 +176,15 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
         
         player = {
             'policy': PolicyNetwork_SAC(),
-            'value' : ValueNetwork_SAC(),
-            'value_target': ValueNetwork_SAC(),
+            'Q1_target': SoftQNetwork_SAC(),
+            'Q2_target': SoftQNetwork_SAC(),
             'Q1'    : SoftQNetwork_SAC(),
             'Q2'    : SoftQNetwork_SAC()
         }
         opponent = {
             'policy': PolicyNetwork_SAC(),
-            'value' : ValueNetwork_SAC(),
-            'value_target': ValueNetwork_SAC(),
+            'Q1_target': SoftQNetwork_SAC(),
+            'Q2_target': SoftQNetwork_SAC(),
             'Q1'    : SoftQNetwork_SAC(),
             'Q2'    : SoftQNetwork_SAC()
         }
@@ -240,8 +235,8 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
         rarl_sac.load()
         
     elif alg == 'SAC':
-        sac = SAC_RARL.SAC(player['value'], player['value_target'], player['Q1'], player ['Q2'], player['policy'], env, print_flag=False, lr_V=1e-4, lr_Q=1e-4, lr_pi=1e-4, name='Walker_2D_model_SAC')
-        if train: sac.train(episodes=1000, epoch=10, mini_batch=32, max_steps_rollouts=1024, continue_prev_train=False)
+        sac = SAC_RARL.SAC(player['Q1_target'], player['Q2_target'], player['Q1'], player ['Q2'], player['policy'], env, print_flag=False, lr_Q=1e-4, lr_pi=1e-4, name='Walker_2D_model_SAC')
+        if train: sac.train(episodes=1000, epoch=1, mini_batch=512, max_steps_rollouts=1024, continue_prev_train=False)
         sac.load()
 
     env.close()
@@ -254,6 +249,7 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
     
     # choise the algorithm for run the simulation
     RL = ppo if alg == 'PPO' else rarl_ppo
+    RL = sac if alg == 'SAC' else rarl_sac
     Test(RL, env, 10_000)
 
 if __name__ == '__main__':
