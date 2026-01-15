@@ -64,9 +64,10 @@ class SAC():
                  epsilon        : float = 1e-6,
                  print_flag     : bool  = True,
                  save_interval  : int   = 10,
-                 start_policy   : int   = 5,
+                 start_policy   : int   = 10,
                  capacity      : int   = 1_000_000,
                  freq_upd      : int   = 1024,
+                 freq_ep       : int   = 4,
                  device=torch.device('cpu'),
                  name = 'model') -> None:
 
@@ -88,6 +89,7 @@ class SAC():
         self.replay_buffer = ReplayBuffer(capacity)
         self.freq_upd = freq_upd 
         self.start_policy = start_policy
+        self.freq_ep = freq_ep
 
         self.save_interval = save_interval
         self.model_name = name
@@ -110,6 +112,7 @@ class SAC():
         std = log_std.exp()
         
         dist = Normal(mean, std)
+        
         action_pre = dist.rsample()  # equivalent to (mean + std * N(0,1))
         action = torch.tanh(action_pre)
 
@@ -156,7 +159,7 @@ class SAC():
                 
                 # predict target for Q
                 Q1_target, Q2_target =  self.NN_Q1_target(next_state, new_actions), self.NN_Q2_target(next_state, new_actions)
-                Q_target = torch.min(Q1_target, Q2_target)- self.alpha * new_log_probs
+                Q_target = torch.min(Q1_target, Q2_target) - self.alpha * new_log_probs
                 Q_hat = (reward + mask * self.gamma * Q_target)
                 
             #  Predict Q1 and Q2 values
@@ -164,8 +167,8 @@ class SAC():
             Q2 = self.NN_Q2(state, action)
             
             # compute  Q1, Q2 losses
-            loss_Q1 = nn.MSELoss()(Q1, Q_hat)
-            loss_Q2 = nn.MSELoss()(Q2, Q_hat)
+            loss_Q1 = F.mse_loss(Q1, Q_hat)  # try to invert it!
+            loss_Q2 = F.mse_loss(Q2, Q_hat)
             
             # backward
             self.optim_Q1.zero_grad()
@@ -180,7 +183,7 @@ class SAC():
 
             # policy loss
             new_Q_prime = torch.min(self.NN_Q1(state, new_action), self.NN_Q2(state, new_action))
-            actor_loss  = (new_log_prob*self.alpha - new_Q_prime).mean()
+            actor_loss  = (new_log_prob*self.alpha - new_Q_prime).mean()   # try to invert it!
             
             # policy backward
             self.optim_pi.zero_grad()
@@ -188,7 +191,7 @@ class SAC():
             self.optim_pi.step()
             
             # alpha loss
-            
+        
             target_entropy = -1.0 * new_action.size(-1)   # target entropy is -|A|
             target_entropy = torch.tensor(target_entropy).to(self.device).item()
             alpha_loss = -(self.log_alpha * (new_log_prob + target_entropy).detach()).mean()
@@ -196,14 +199,14 @@ class SAC():
             self.optim_alpha.zero_grad()
             alpha_loss.backward()
             self.optim_alpha.step()
-
+            
             # update alpha
             self.alpha = self.log_alpha.exp()
             
             # Soft update Q1 and Q2 target nets 
             for target_param, param in zip(self.NN_Q1_target.parameters(), self.NN_Q1.parameters()):
 
-                target_param.data.copy_(target_param.data * (1.0 - self.tau) + param.data * self.tau)
+                target_param.data.copy_(target_param.data * (1.0 - self.tau) + param.data * self.tau) # try to invert it! 
             
             for target_param, param in zip(self.NN_Q2_target.parameters(), self.NN_Q2.parameters()):
 
@@ -254,17 +257,16 @@ class SAC():
                     # get the output of the actor 
                     action, _, _ = self.get_action(state)
                     action = action.detach()
-                
-                steps += 1
         
                 # take a step in the environment
                 next_state, reward, terminated, truncated, _ = self.env.step(action)
                 done = terminated or truncated
                 
                 # Ignore the "done" signal if it comes from hitting the time horizon.
-                mask = 1 if steps == max_steps_rollouts else float(not done)
+                #mask = 1.0 if steps >= max_steps_rollouts else float(not done)
+                mask = not(terminated)
                 
-                if len(self.replay_buffer) > mini_batch and steps % self.freq_upd == 0:
+                if len(self.replay_buffer) > mini_batch and steps % self.freq_upd == 0 and episode % self.freq_ep == 0:
                     
                     # starting the updating epoches
                     if self.print_flag: print("[T]: starting SAC iterations")
@@ -273,6 +275,7 @@ class SAC():
                     window += 1
                     
                 self.replay_buffer.push(state, action, reward, next_state, mask)
+                steps += 1
                     
                 state = next_state
                 mean_rew += reward
