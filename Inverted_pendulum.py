@@ -9,6 +9,8 @@ import PPO_RARL as PPO
 import SAC_RARL as SAC 
 import ENV_Wrapper as Env
 
+import csv
+
 class SoftQNetwork_SAC(nn.Module):
     def __init__(self, n_inputs = 4 + 1, n_outputs = 1) -> None:
         super().__init__()
@@ -104,7 +106,7 @@ class CartPole(gym.Wrapper):
             self.env = gym.make('InvertedPendulum-v5', reset_noise_scale=0.1)
 
     def _preprocess_action(self, action) -> float:
-        if self.algorithm == 'PPO' or self.algorithm == 'RARL_PPO':
+        if self.algorithm in  ['PPO', 'PPO_RARL', 'RARL']:
             return np.asarray(action.squeeze(0).cpu()) * 6 - 3 # scale action in range [-3, 3]
         if self.algorithm == 'SAC' or self.algorithm == 'RARL_SAC':
             return action.detach().cpu().numpy()[0]* 3 # scale action in range [-3, 3]
@@ -129,20 +131,24 @@ class CartPole(gym.Wrapper):
     def close(self):
         self.env.close()
 
-def Test(RL, env, steps = 10_000):
+def Test(RL, env, steps = 10_000) -> tuple[float, int, int, list[float, int]]:
     s, _ = env.reset()
+    rew_list = [(0, 0)]
     reward = 0
-    attempts = 1
+    attempts = 0
     for i in range(steps):
         s, r, term, tronc, _ = env.step_alone(RL.act(s))
         reward += r
         if term or tronc: 
             s, _ = env.reset()
             attempts += 1
+            rew_list.append((reward - np.sum([r[0] for r in rew_list]), i+1 - np.sum([s[1] for s in rew_list])))
         if np.mod(i, 1000) == 0: print('#', end='', flush=True)
     env.close()
 
     print(f'\n---> rewards: {reward/attempts} | gained in {attempts} attempts')
+
+    return (reward, attempts, steps, rew_list[1:])
 
 def Perturbate_env(env, pert = 0):
     print(f"Original pendolum mass: {env.unwrapped.model.body_mass[2]}")
@@ -151,15 +157,15 @@ def Perturbate_env(env, pert = 0):
     env.unwrapped.model.body_mass[2] += env.unwrapped.model.body_mass[2]*pert
     print(f"New pendolum mass: {env.unwrapped.model.body_mass[2]}")
 
-def main(render = True, train = True, alg = 'RARL', pm_pert = 0):
+def main(render = True, train = True, alg = 'RARL', pm_pert = 0, model_to_load = ''):
     # init environment and neural network
-    render_mode = 'human'
+    render_mode = ''#'human'
     env = CartPole(render_mode if render else None, alg)
 
-    if alg in ['PPO', 'RARL_PPO']:
+    if alg in ['PPO', 'RARL_PPO', 'RARL']:
         
-        player = CartPole()
-        opponent = CartPole() # 2 output for X, Y forces on both feat
+        player = CartPole_NN()
+        opponent = CartPole_NN() # 2 output for X, Y forces on both feat
     
     if alg in ['SAC', 'RARL_SAC']:
         
@@ -180,7 +186,7 @@ def main(render = True, train = True, alg = 'RARL', pm_pert = 0):
 
     # init the PPO or RARL_PPO algorithm
     if alg == 'RARL':
-        rarl_ppo = PPO.RARL_PPO(player, opponent, env, print_flag=True, name='CartPole_Adverarial_model')
+        rarl_ppo = PPO.RARL_PPO(player, opponent, env, print_flag=True, name='CartPole_Adverarial_model' if model_to_load == '' else model_to_load)
         if train: rarl_ppo.train(player_episode=10, 
                              opponent_episode=4, 
                              episodes=200, 
@@ -189,7 +195,7 @@ def main(render = True, train = True, alg = 'RARL', pm_pert = 0):
                              continue_prev_train=False)
         rarl_ppo.load()
     elif alg == 'PPO':
-        ppo = PPO.PPO(player, env, print_flag=False, name='CartPole_model')
+        ppo = PPO.PPO(player, env, print_flag=False, name='CartPole_model' if model_to_load == '' else model_to_load)
         if train: ppo.train(episodes=200, mini_bach=64, max_steps_rollouts=1024, continue_prev_train=False)
         ppo.load()
     
@@ -218,8 +224,25 @@ def main(render = True, train = True, alg = 'RARL', pm_pert = 0):
     
     # choise the algorithm for run the simulation
     RL = ppo if alg == 'PPO' else rarl_ppo
-    Test(RL, env, 10_000)
+    
+    list_for_file = []
+    for i in range(10):
+        rew, attempts, steps, rew_list = Test(RL, env, 10_000)
+        list_for_file.extend([{
+            'algorithm' : alg,
+            'perturbation' : pm_pert,
+            'steps' : elem[1],
+            'reward' : elem[0],
+            'model' : RL.model_name
+            } for elem in rew_list])
+        
+    with open(f'Files/InvertedPendulum/{alg}_{pm_pert}.csv', 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=[k for k in list_for_file[0].keys()])
+        writer.writeheader()
+        writer.writerows(list_for_file)
+
 
 if __name__ == '__main__':
- #   main(render=True, train=False, pm_pert = -0.1, alg = 'PPO')
-    main(render=False, train=True, pm_pert = 0.1, alg = 'SAC') # test SAC
+    for pert in [-0.9, -0.5, -0.1, 0, 0.1, 0.5, 1, 2]:
+        main(render=True, train=False, pm_pert = pert, alg = 'PPO', model_to_load='Models/CartPole_models/Ideal_models/CartPole_model_1')
+    #main(render=False, train=True, pm_pert = 0.1, alg = 'SAC') # test SAC
