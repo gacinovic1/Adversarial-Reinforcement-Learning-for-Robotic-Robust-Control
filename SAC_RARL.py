@@ -64,7 +64,7 @@ class SAC():
                  epsilon        : float = 1e-6,
                  print_flag     : bool  = True,
                  save_interval  : int   = 10,
-                 start_policy   : int   = 10,
+                 start_policy   : int   = 5,
                  capacity      : int   = 1_000_000,
                  freq_upd      : int   = 1024,
                  freq_ep       : int   = 4,
@@ -158,6 +158,7 @@ class SAC():
                 new_actions, _ , new_log_probs = self.get_action(next_state)
                 
                 # predict target for Q
+
                 Q1_target, Q2_target =  self.NN_Q1_target(next_state, new_actions), self.NN_Q2_target(next_state, new_actions)
                 Q_target = torch.min(Q1_target, Q2_target) - self.alpha * new_log_probs
                 Q_hat = (reward + mask * self.gamma * Q_target)
@@ -179,11 +180,11 @@ class SAC():
             loss_Q2.backward()
             self.optim_Q2.step()
 
-            new_action, new_log_prob, _ = self.get_action(state)
+            new_action, _ , new_log_prob = self.get_action(state)
 
             # policy loss
             new_Q_prime = torch.min(self.NN_Q1(state, new_action), self.NN_Q2(state, new_action))
-            actor_loss  = (new_log_prob*self.alpha - new_Q_prime).mean()   # try to invert it!
+            actor_loss  = ((self.alpha*new_log_prob) - new_Q_prime).mean()   # try to invert it!
             
             # policy backward
             self.optim_pi.zero_grad()

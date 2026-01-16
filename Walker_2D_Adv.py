@@ -235,7 +235,7 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
         rarl_sac.load()
         
     elif alg == 'SAC':
-        sac = SAC_RARL.SAC(player['Q1_target'], player['Q2_target'], player['Q1'], player ['Q2'], player['policy'], env, print_flag=False, lr_Q=1e-4, lr_pi=1e-4, name='Walker_2D_model_SAC')
+        sac = SAC_RARL.SAC(player['Q1_target'], player['Q2_target'], player['Q1'], player ['Q2'], player['policy'], env, print_flag=False, lr_Q=3e-4, lr_pi=3e-4, name='Walker_2D_model_SAC')
         if train: sac.train(episodes=1000, epoch=100, mini_batch=256, max_steps_rollouts=1024, continue_prev_train=False)
         sac.load()
 
