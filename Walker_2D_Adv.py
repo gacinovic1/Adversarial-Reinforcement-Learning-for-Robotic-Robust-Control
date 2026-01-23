@@ -182,11 +182,11 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
             'Q2'    : SoftQNetwork_SAC()
         }
         opponent = {
-            'policy': PolicyNetwork_SAC(),
-            'Q1_target': SoftQNetwork_SAC(),
-            'Q2_target': SoftQNetwork_SAC(),
-            'Q1'    : SoftQNetwork_SAC(),
-            'Q2'    : SoftQNetwork_SAC()
+            'policy': PolicyNetwork_SAC(n_outputs=4),
+            'Q1_target': SoftQNetwork_SAC(n_inputs = 17 + 4),
+            'Q2_target': SoftQNetwork_SAC(n_inputs = 17 + 4),
+            'Q1'    : SoftQNetwork_SAC(n_inputs = 17 + 4),
+            'Q2'    : SoftQNetwork_SAC(n_inputs = 17 + 4)
         }
 
     if alg in ['PPO', 'SAC']:
@@ -203,7 +203,7 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
         env = Walker_env_pert(
         env_name='Walker2d-v5',
         action_range=[-1.0, 1.0],
-        adv_action_range=[-0.01, 0.001],
+        adv_action_range=[-0.01, 0.01],
         render_mode=render_mode if render else None,
         is_norm_wrapper=True, algorithm= alg)
         
@@ -225,12 +225,13 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
         ppo.load()
 
     if alg == 'RARL_SAC':
-        rarl_sac = SAC_RARL.RARL_SAC(player, opponent, env, print_flag=False, lr_player=1e-4, name='Walker_2D_Adversarial_SAC_model')
+        rarl_sac = SAC_RARL.RARL_SAC(player, opponent, env, print_flag=False, lr_Q=3e-4, lr_pi=3e-4, name='Walker_2D_Adversarial_SAC_model')
         if train: rarl_sac.train(player_episode=10, 
                              opponent_episode=4, 
-                             episodes=10, 
-                             mini_bach=128, 
-                             max_steps_rollouts=2048, 
+                             episodes=1000, 
+                             epoch = 50,
+                             mini_batch=256, 
+                             max_steps_rollouts=1024, 
                              continue_prev_train=False)
         rarl_sac.load()
         
@@ -248,8 +249,11 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
     Perturbate_env(env, pm_pert)
     
     # choise the algorithm for run the simulation
-    RL = ppo if alg == 'PPO' else rarl_ppo
-    RL = sac if alg == 'SAC' else rarl_sac
+    RL = ppo  if alg == 'PPO' else \
+        rarl_ppo if alg == 'RARL_PPO' else\
+        sac if alg == 'SAC' else \
+        rarl_sac 
+            
     Test(RL, env, 10_000)
 
 if __name__ == '__main__':
@@ -257,6 +261,6 @@ if __name__ == '__main__':
     #main(render=False, train=True, alg = 'RARL') # train with RARL
  #   main(render=False, train=True, pm_pert = 1, alg = 'PPO') # test PPO
  #   main(render=False, train=True, pm_pert = 1, alg = 'RARL_PPO') # test RARL PPO
-    main(render=False, train=True, pm_pert = 1, alg = 'SAC') # test SAC
+    main(render=False, train=True, pm_pert = 1, alg = 'RARL_SAC') # test SAC
   #  main(render=False, train=True, pm_pert = 1, alg = 'RARL_SAC') # test RARL SAC
     
