@@ -1,3 +1,4 @@
+from pyexpat import model
 import torch.nn as nn
 import numpy as np
 import mujoco
@@ -103,7 +104,7 @@ class Walker_env_pert(ENV_Wrapper.ENV_Adversarial_wrapper):
                adv_action_range : list[float, float], 
                     render_mode : str    = None, 
                 is_norm_wrapper : bool   = True,
-                algorithm : str = 'SAC') -> None:
+                algorithm : str = 'RARL_SAC') -> None:
         super().__init__(env_name, action_range, adv_action_range, render_mode, is_norm_wrapper, algorithm)
 
         self.mj_model, self.mj_data = self.env.unwrapped.model, self.env.unwrapped.data
@@ -158,7 +159,15 @@ def Perturbate_env(env, pert = 0):
     env.unwrapped.model.body_mass[2] += env.unwrapped.model.body_mass[2]*pert
     print(f"New mass: {env.unwrapped.model.body_mass[2]}")
 
-    env.mj_model.geom_friction[env.ids['floor']] = [0.01, 0.01, 0.01] # [sliding, torsional, rolling]
+    model = env.unwrapped.model
+
+    floor_id = mujoco.mj_name2id(
+    model,
+    mujoco.mjtObj.mjOBJ_GEOM,
+    "floor"
+    )
+
+    model.geom_friction[floor_id] = np.array([0.01, 0.01, 0.01])# [sliding, torsional, rolling]
 
 
 def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
@@ -189,7 +198,7 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
             'Q2'    : SoftQNetwork_SAC(n_inputs = 17 + 4)
         }
 
-    if alg in ['PPO', 'SAC']:
+    if alg in ['PPO', 'SAC'] or (alg in ['RARL_PPO', 'RARL_SAC'] and not train):
         
         env = ENV_Wrapper.ENV_wrapper(
         env_name='Walker2d-v5',
@@ -199,13 +208,14 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
         is_norm_wrapper=True, algorithm= alg)
         
     else:
-        
+
         env = Walker_env_pert(
         env_name='Walker2d-v5',
         action_range=[-1.0, 1.0],
         adv_action_range=[-0.01, 0.01],
         render_mode=render_mode if render else None,
         is_norm_wrapper=True, algorithm= alg)
+
         
 
     # init the PPO or RARL_PPO algorithm
@@ -225,19 +235,19 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
         ppo.load()
 
     if alg == 'RARL_SAC':
-        rarl_sac = SAC_RARL.RARL_SAC(player, opponent, env, print_flag=False, lr_Q=3e-4, lr_pi=3e-4, name='Walker_2D_Adversarial_SAC_model')
+        rarl_sac = SAC_RARL.RARL_SAC(player, opponent, env, print_flag=False, lr_Q=3e-4, lr_pi=1e-4, name='Walker_2D_Adversarial_SAC_model')
         if train: rarl_sac.train(player_episode=10, 
                              opponent_episode=4, 
                              episodes=1000, 
-                             epoch = 50,
-                             mini_batch=256, 
+                             epoch = 1,
+                             mini_batch=128, 
                              max_steps_rollouts=1024, 
                              continue_prev_train=False)
         rarl_sac.load()
         
     elif alg == 'SAC':
-        sac = SAC_RARL.SAC(player['Q1_target'], player['Q2_target'], player['Q1'], player ['Q2'], player['policy'], env, print_flag=False, lr_Q=3e-4, lr_pi=3e-4, name='Walker_2D_model_SAC')
-        if train: sac.train(episodes=1000, epoch=100, mini_batch=256, max_steps_rollouts=1024, continue_prev_train=False)
+        sac = SAC_RARL.SAC(player['Q1_target'], player['Q2_target'], player['Q1'], player ['Q2'], player['policy'], env, print_flag=False, lr_Q=3e-4, lr_pi=1e-4, name='Walker_2D_model_SAC')
+        if train: sac.train(episodes=1000, epoch=1, mini_batch=128, max_steps_rollouts=1024, continue_prev_train=False)
         sac.load()
 
     env.close()
@@ -245,7 +255,7 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
     # render the simulation if needed
     if not render: return
 
-    # perturbate the modle paramether
+    # perturbate the model paramether
     Perturbate_env(env, pm_pert)
     
     # choise the algorithm for run the simulation
@@ -254,13 +264,13 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
         sac if alg == 'SAC' else \
         rarl_sac 
             
-    Test(RL, env, 10_000)
+    Test(RL, env, 1_000)
 
 if __name__ == '__main__':
     #main(render=False, train=True, alg = 'PPO') # train with PPO
     #main(render=False, train=True, alg = 'RARL') # train with RARL
  #   main(render=False, train=True, pm_pert = 1, alg = 'PPO') # test PPO
  #   main(render=False, train=True, pm_pert = 1, alg = 'RARL_PPO') # test RARL PPO
-    main(render=False, train=True, pm_pert = 1, alg = 'RARL_SAC') # test SAC
+    main(render=False, train=True, pm_pert = 1, alg = 'SAC') # test SAC
   #  main(render=False, train=True, pm_pert = 1, alg = 'RARL_SAC') # test RARL SAC
     

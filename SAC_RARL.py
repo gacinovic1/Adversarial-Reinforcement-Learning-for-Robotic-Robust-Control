@@ -55,8 +55,8 @@ class SAC():
                  net_Q2           : nn.Module,
                  net_pi           : nn.Module,
                  env            : gym.Env,
-                 lr_Q             : float = 1e-3,
-                 lr_pi          : float = 1e-3,
+                 lr_Q             : float = 1e-4,
+                 lr_pi          : float = 1e-4,
                  gamma          : float = 0.99,
                  tau        : float = 0.005,
                  log_alpha  : float = -1.60944,  # to start with alpha = 0.2
@@ -64,10 +64,10 @@ class SAC():
                  epsilon        : float = 1e-6,
                  print_flag     : bool  = True,
                  save_interval  : int   = 10,
-                 start_policy   : int   = 5,
+                 start_policy   : int   = 0,
                  capacity      : int   = 1_000_000,
-                 freq_upd      : int   = 1024,
-                 freq_ep       : int   = 4,
+                 freq_upd      : int   = 1,
+                 freq_ep       : int   = 1,
                  device=torch.device('cpu'),
                  name = 'model') -> None:
 
@@ -265,7 +265,9 @@ class SAC():
                 
                 # Ignore the "done" signal if it comes from hitting the time horizon.
                 #mask = 1.0 if steps >= max_steps_rollouts else float(not done)
-                mask = not(terminated)
+                mask = 0.0 if terminated else 1.0
+                
+                self.replay_buffer.push(state, action, reward, next_state, mask)
                 
                 if len(self.replay_buffer) > mini_batch and steps % self.freq_upd == 0 and episode % self.freq_ep == 0:
                     
@@ -275,7 +277,6 @@ class SAC():
                     if self.print_flag: print("[T]: end SAC iterations")
                     window += 1
                     
-                self.replay_buffer.push(state, action, reward, next_state, mask)
                 steps += 1
                     
                 state = next_state
@@ -289,9 +290,10 @@ class SAC():
                     if self.print_flag: print("/", end='', flush=True)
                     tranches += 1
                     state, _ = self.env.reset()
+                    done = False
                     continue
                 
-            print(f"[T]: end episode {episode} windows: | {window} | mean rewards: {mean_rew/tranches}")
+            print(f"[T]: end episode {episode} windows: | {window} | tranches: {tranches} | mean rewards: {mean_rew/tranches} ")
                 
             
             if(np.mod(episode, self.save_interval) == 0):
@@ -364,10 +366,10 @@ class RARL_SAC():
                  epsilon        : float = 1e-6,
                  print_flag     : bool  = True,
                  save_interval  : int   = 10,
-                 start_policy   : int   = 5,
+                 start_policy   : int   = 0,
                  capacity      : int   = 1_000_000,
-                 freq_upd      : int   = 1024,
-                 freq_ep       : int   = 2,
+                 freq_upd      : int   = 1,
+                 freq_ep       : int   = 1,
                  device=torch.device('cpu'),
                  name = 'model') -> None:
 
@@ -623,7 +625,9 @@ class RARL_SAC():
                     reward = -reward
                 
                 # Ignore the "done" signal if it comes from hitting the time horizon.
-                mask = not(terminated)
+                mask = 0.0 if terminated else 1.0
+                
+                current_actor_dict['replay_buffer'].push(state, action, reward, next_state, mask)
                 
                 if len(current_actor_dict['replay_buffer']) > mini_batch and steps % self.freq_upd == 0 and episode % self.freq_ep == 0:
                     
@@ -633,7 +637,6 @@ class RARL_SAC():
                     if self.print_flag: print("[T]: end SAC iterations")
                     window += 1
                     
-                current_actor_dict['replay_buffer'].push(state, action, reward, next_state, mask)
                 steps += 1
                     
                 state = next_state
@@ -647,6 +650,7 @@ class RARL_SAC():
                     if self.print_flag: print("/", end='', flush=True)
                     tranches += 1
                     state, _ = self.env.reset()
+                    done = False
                     continue
                 
             print(f"[T]: end episode {episode} windows: | {window} | mean rewards: {mean_rew/tranches}")
@@ -696,12 +700,11 @@ class RARL_SAC():
         self.player['Q1_target'].load_state_dict(checkpoint['player_Q1_target_state_dict'])
         self.player['Q2_target'].load_state_dict(checkpoint['player_Q2_target_state_dict'])
         
-        self.opponent['policy'].load_state_dict(checkpoint['player_state_dict'])
-        self.opponent['Q1'].load_state_dict(checkpoint['player_Q1_state_dict'])
-        self.opponent['Q2'].load_state_dict(checkpoint['player_Q2_state_dict'])
-        self.opponent['Q1_target'].load_state_dict(checkpoint['player_Q1_target_state_dict'])
-        self.opponent['Q2_target'].load_state_dict(checkpoint['player_Q2_target_state_dict'])
-
+        self.opponent['policy'].load_state_dict(checkpoint['opponent_state_dict'])
+        self.opponent['Q1'].load_state_dict(checkpoint['opponent_Q1_state_dict'])
+        self.opponent['Q2'].load_state_dict(checkpoint['opponent_Q2_state_dict'])
+        self.opponent['Q1_target'].load_state_dict(checkpoint['opponent_Q1_target_state_dict'])
+        self.opponent['Q2_target'].load_state_dict(checkpoint['opponent_Q2_target_state_dict'])
         if self.env.is_norm_wrapper:
             self.env.env.obs_rms.mean  = checkpoint['obs_mean']
             self.env.env.obs_rms.var   = checkpoint['obs_var']
