@@ -141,6 +141,7 @@ def Test(RL, env, steps = 10_000):
     reward = 0
     attempts = 1
     for i in range(steps):
+        env.update_running_stats = False 
         s, r, term, tronc, _ = env.step(RL.act(s))
         reward += r
         if term or tronc:
