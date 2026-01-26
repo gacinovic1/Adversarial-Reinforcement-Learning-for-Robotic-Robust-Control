@@ -135,6 +135,8 @@ class HalfCheetah_env_pert(ENV_Wrapper.ENV_Adversarial_wrapper):
       return self._postprocess_state(state), info
 
 def Test(RL, env, steps = 10_000):
+    
+    env.update_running_stats = False 
     s, _ = env.reset()
     reward = 0
     attempts = 1

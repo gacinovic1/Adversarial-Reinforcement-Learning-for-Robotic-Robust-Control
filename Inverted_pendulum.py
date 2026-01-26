@@ -139,6 +139,7 @@ def Test(RL, env, steps = 10_000) -> tuple[float, int, int, list[float, int]]:
     reward = 0
     attempts = 0
     for i in range(steps):
+        env.update_running_stats = False 
         s, r, term, tronc, _ = env.step_alone(RL.act(s))
         reward += r
         if term or tronc: 
