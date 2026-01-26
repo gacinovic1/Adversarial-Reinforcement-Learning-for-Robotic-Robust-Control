@@ -132,6 +132,8 @@ class CartPole(gym.Wrapper):
         self.env.close()
 
 def Test(RL, env, steps = 10_000) -> tuple[float, int, int, list[float, int]]:
+    
+    env.update_running_stats = False
     s, _ = env.reset()
     rew_list = [(0, 0)]
     reward = 0
