@@ -20,7 +20,7 @@ class SoftQNetwork_SAC(nn.Module):
         self.linear3 = nn.Linear(256, n_outputs)
         
         # inizialization of weights in a xavier uniform manner and bias to zero
-        '''
+        
         gain = torch.nn.init.calculate_gain('relu')
         torch.nn.init.xavier_uniform_(self.linear1.weight, gain)
         torch.nn.init.constant_(self.linear1.bias, 0)
@@ -28,7 +28,7 @@ class SoftQNetwork_SAC(nn.Module):
         torch.nn.init.constant_(self.linear2.bias, 0)
         torch.nn.init.xavier_uniform_(self.linear3.weight, gain)
         torch.nn.init.constant_(self.linear3.bias, 0)
-        '''
+        
 
     def forward(self, state, action):
         x = torch.cat([state, action], 1)
@@ -49,7 +49,7 @@ class PolicyNetwork_SAC(nn.Module):
         self.log_std_linear = nn.Linear(256, n_outputs) 
         
         # inizialization of weights in a xavier uniform manner and bias to zero
-        '''
+        
         gain = torch.nn.init.calculate_gain('relu')
         torch.nn.init.xavier_uniform_(self.linear1.weight, gain)
         torch.nn.init.constant_(self.linear1.bias, 0)
@@ -57,7 +57,7 @@ class PolicyNetwork_SAC(nn.Module):
         torch.nn.init.constant_(self.linear2.bias, 0)
         torch.nn.init.xavier_uniform_(self.log_std_linear.weight, gain)
         torch.nn.init.constant_(self.log_std_linear.bias, 0)
-        '''
+        
 
     def forward(self, x):
         x = F.relu(self.linear1(x))
@@ -185,7 +185,7 @@ def main(render = True, train = True, alg = 'RARL', pm_pert = 0, model_to_load =
         }
 
     # init the PPO or RARL_PPO algorithm
-    if alg == 'RARL':
+    if alg == 'RARL_PPO':
         rarl_ppo = PPO.RARL_PPO(player, opponent, env, print_flag=True, name='CartPole_Adverarial_model' if model_to_load == '' else model_to_load)
         if train: rarl_ppo.train(player_episode=10, 
                              opponent_episode=4, 
@@ -200,18 +200,19 @@ def main(render = True, train = True, alg = 'RARL', pm_pert = 0, model_to_load =
         ppo.load()
     
     if alg == 'RARL_SAC':
-        rarl_sac = SAC.RARL_SAC(player, opponent, env, print_flag=False, lr_player=1e-4, name='Inverted_Pendulum_Adversarial_SAC_model')
+        rarl_sac = SAC.RARL_SAC(player, opponent, env, print_flag=False, lr_Q=3e-4, lr_player=1e-4, name='Inverted_Pendulum_Adversarial_SAC_model')
         if train: rarl_sac.train(player_episode=10, 
                              opponent_episode=4, 
-                             episodes=10, 
+                             episodes=1000, 
+                             epoch = 1,
                              mini_bach=128, 
-                             max_steps_rollouts=2048, 
+                             max_steps_rollouts=1024, 
                              continue_prev_train=False)
         rarl_sac.load()
         
     elif alg == 'SAC':
-        sac = SAC.SAC(player['Q1_target'], player['Q2_target'], player['Q1'], player ['Q2'], player['policy'], env, print_flag=False, lr_Q=1e-3, lr_pi=1e-3, name='Inverted_Pendulum_model_SAC')
-        if train: sac.train(episodes=1000, epoch=100, mini_batch=128, max_steps_rollouts=1000, continue_prev_train=False)
+        sac = SAC.SAC(player['Q1_target'], player['Q2_target'], player['Q1'], player ['Q2'], player['policy'], env, print_flag=False, lr_Q=3e-4, lr_pi=1e-4, name='Inverted_Pendulum_model_SAC')
+        if train: sac.train(episodes=1000, epoch=1, mini_batch=128, max_steps_rollouts=1024, continue_prev_train=False)
         sac.load()
 
     env.close()
@@ -221,9 +222,12 @@ def main(render = True, train = True, alg = 'RARL', pm_pert = 0, model_to_load =
 
     # perturbate the model paramether
     Perturbate_env(env, pm_pert)
-    
+
     # choise the algorithm for run the simulation
-    RL = ppo if alg == 'PPO' else rarl_ppo
+    RL = ppo  if alg == 'PPO' else \
+        rarl_ppo if alg == 'RARL_PPO' else\
+        sac if alg == 'SAC' else \
+        rarl_sac 
     
     list_for_file = []
     for i in range(10):
@@ -244,5 +248,5 @@ def main(render = True, train = True, alg = 'RARL', pm_pert = 0, model_to_load =
 
 if __name__ == '__main__':
     for pert in [-0.9, -0.5, -0.1, 0, 0.1, 0.5, 1, 2]:
-        main(render=True, train=False, pm_pert = pert, alg = 'PPO', model_to_load='Models/CartPole_models/Ideal_models/CartPole_model_1')
+        main(render=False, train=True, pm_pert = pert, alg = 'SAC', model_to_load='Models/CartPole_models/Ideal_models/CartPole_model_1')
     #main(render=False, train=True, pm_pert = 0.1, alg = 'SAC') # test SAC
