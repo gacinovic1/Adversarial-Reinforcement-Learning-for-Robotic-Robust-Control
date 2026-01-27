@@ -82,13 +82,7 @@ def Perturbate_env(env, pert = 0):
       print(f" ---> New {i} mass: {env.unwrapped.model.body_mass[i]}")
 
     model = env.unwrapped.model
-
-    floor_id = mujoco.mj_name2id(
-    model,
-    mujoco.mjtObj.mjOBJ_GEOM,
-    "floor"
-    )
-
+    floor_id = mujoco.mj_name2id(model,mujoco.mjtObj.mjOBJ_GEOM,"floor")
     model.geom_friction[floor_id] = np.array([0.01, 0.01, 0.01])# [sliding, torsional, rolling]
 
 

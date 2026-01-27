@@ -26,8 +26,8 @@ class HalfCheetah_env_pert(ENV_Wrapper.ENV_Adversarial_wrapper):
         self.mj_model, self.mj_data = self.env.unwrapped.model, self.env.unwrapped.data
 
         self.ids = {}
-        self.ids['bacck_foot'] = self.mj_model.body("bfoot").id
-        self.ids['fron_foot' ] = self.mj_model.body("ffoot").id
+        self.ids['back_foot'] = self.mj_model.body("bfoot").id
+        self.ids['front_foot'] = self.mj_model.body("ffoot").id
         self.ids['floor'] = self.mj_model.geom("floor").id
 
 
@@ -35,8 +35,8 @@ class HalfCheetah_env_pert(ENV_Wrapper.ENV_Adversarial_wrapper):
     def perturbate_env(self, o_act):
         # apply forces on feats
         o_act = self._preprocess_action(o_act)
-        self.mj_data.xfrc_applied[self.ids['bacck_foot']] = np.array([o_act[0], o_act[1], 0.0, 0.0, 0.0, 0.0])
-        self.mj_data.xfrc_applied[self.ids['fron_foot' ]] = np.array([o_act[2], o_act[3], 0.0, 0.0, 0.0, 0.0])
+        self.mj_data.xfrc_applied[self.ids['back_foot']] = np.array([o_act[0], o_act[1], 0.0, 0.0, 0.0, 0.0])
+        self.mj_data.xfrc_applied[self.ids['front_foot']] = np.array([o_act[2], o_act[3], 0.0, 0.0, 0.0, 0.0])
         return
 
     def step(self, action, action_adv = None):
@@ -76,7 +76,7 @@ def Perturbate_env(env, pert = 0):
     if pert == 0: return
     # must be perturbed the walker model
 
-    # modify pendolum mass
+    # modify masses
     for i in [0, 1, 2, 3, 4, 5]:
       print(f"Original {i} mass: {env.unwrapped.model.body_mass[i]}", end='')
       env.unwrapped.model.body_mass[i] += env.unwrapped.model.body_mass[i]*pert
