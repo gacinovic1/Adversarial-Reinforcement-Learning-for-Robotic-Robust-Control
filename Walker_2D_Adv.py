@@ -10,6 +10,8 @@ import PPO_RARL as PPO
 import SAC_RARL
 import ENV_Wrapper
 
+import csv
+
 class Walker_NN_PPO(nn.Module):
     def __init__(self, n_inputs = 17, n_outputs = 6) -> None:
         super().__init__()
@@ -132,42 +134,52 @@ class Walker_env_pert(ENV_Wrapper.ENV_Adversarial_wrapper):
 
         return self._postprocess_state(state), reward, terminated, truncated, info
 
-def Test(RL, env, steps = 10_000):
-    
-    env.update_running_stats = False 
+def Test(RL, env, steps = 10_000) -> tuple[float, int, int, list[float, int]]:
     s, _ = env.reset()
+    rew_list = [(0, 0)]
     reward = 0
-    attempts = 1
+    attempts = 0
     for i in range(steps):
         s, r, term, tronc, _ = env.step(RL.act(s))
         reward += r
         if term or tronc: 
             s, _ = env.reset()
             attempts += 1
+            rew_list.append((reward - np.sum([r[0] for r in rew_list]), i+1 - np.sum([s[1] for s in rew_list])))
         if np.mod(i, 1000) == 0: print('#', end='', flush=True)
     env.close()
 
     print(f'\n---> rewards: {reward/attempts} | gained in {attempts} attempts')
 
+    return (reward, attempts, steps, rew_list[1:])
+
+    print(f'\n---> rewards: {reward/attempts} | gained in {attempts} attempts')
+
 
 def Perturbate_env(env, pert = 0):
+    if pert == 0: return
     # must be perturbed the walker model
-    print(f"Original mass: {env.unwrapped.model.body_mass[2]}")
 
-    # modify body's masses
-    env.unwrapped.model.body_mass[2] += env.unwrapped.model.body_mass[2]*pert
-    print(f"New mass: {env.unwrapped.model.body_mass[2]}")
+    # modify pendolum mass
+    for i in [0, 1, 2, 3, 4, 5]:
+      print(f"Original {i} mass: {env.unwrapped.model.body_mass[i]}", end='')
+      env.unwrapped.model.body_mass[i] += env.unwrapped.model.body_mass[i]*pert
+      print(f" ---> New {i} mass: {env.unwrapped.model.body_mass[i]}")
+
+    print(f'original friction: {env.mj_model.geom_friction[env.ids['floor']]}', end='')
+    env.mj_model.geom_friction[env.ids['floor']] = [0.01, 0.001, 0.001] # [sliding, torsional, rolling]
+    print(f' ---> new friction: {env.mj_model.geom_friction[env.ids['floor']]}')
 
     env.mj_model.geom_friction[env.ids['floor']] = [0.01, 0.01, 0.01] # [sliding, torsional, rolling]
 
 
-def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
+def main(render = True, train = False, alg = 'RARL', pm_pert = 0, model_to_load = ''):
     
     if render:
         render_mode = ENV_Wrapper.ENV_Adversarial_wrapper.HUMAN_RENDER
         
     # init environment and neural networks
-    if alg in ['PPO', 'RARL_PPO']:
+    if alg in ['PPO', 'RARL_PPO', 'RARL']:
         
         player = Walker_NN_PPO()
         opponent = Walker_NN_PPO(n_outputs=4) # 2 output for X, Y forces on both feat
@@ -189,28 +201,28 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
             'Q2'    : SoftQNetwork_SAC()
         }
 
-    if alg in ['PPO', 'SAC']:
+    if alg in ['SAC']:
         
         env = ENV_Wrapper.ENV_wrapper(
-        env_name='Walker2d-v5',
-        act_min=-1.0,
-        act_max=1.0,
-        render_mode=render_mode if render else None,
-        is_norm_wrapper=True, algorithm= alg)
+            env_name='Walker2d-v5',
+            act_min=-1.0,
+            act_max=1.0,
+            render_mode=render_mode if render else None,
+            is_norm_wrapper=False, algorithm= alg)
         
     else:
         
         env = Walker_env_pert(
-        env_name='Walker2d-v5',
-        action_range=[-1.0, 1.0],
-        adv_action_range=[-0.01, 0.001],
-        render_mode=render_mode if render else None,
-        is_norm_wrapper=True, algorithm= alg)
+            env_name='Walker2d-v5',
+            action_range=[-1.0, 1.0],
+            adv_action_range=[-0.01, 0.001],
+            render_mode=render_mode if render else None,
+            is_norm_wrapper=False, algorithm= alg)
         
 
     # init the PPO or RARL_PPO algorithm
-    if alg == 'RARL_PPO':
-        rarl_ppo = PPO.RARL_PPO(player, opponent, env, print_flag=False, lr_player=1e-4, name='Walker_2D_Adversarial_PPO_model')
+    if alg in ['RARL_PPO', 'RARL']:
+        rarl_ppo = PPO.RARL_PPO(player, opponent, env, print_flag=False, lr_player=1e-4, name='Walker_2D_Adversarial_PPO_model' if model_to_load == '' else model_to_load)
         if train: rarl_ppo.train(player_episode=10, 
                              opponent_episode=4, 
                              episodes=10, 
@@ -220,7 +232,7 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
         rarl_ppo.load()
         
     elif alg == 'PPO':
-        ppo = PPO.PPO(player, env, print_flag=False, lr=1e-4, name='Walker_2D_model_PPO')
+        ppo = PPO.PPO(player, env, print_flag=False, lr=1e-4, name='Walker_2D_model_PPO' if model_to_load == '' else model_to_load)
         if train: ppo.train(episodes=10, mini_bach=128, max_steps_rollouts=2048, continue_prev_train=False)
         ppo.load()
 
@@ -249,14 +261,31 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
     
     # choise the algorithm for run the simulation
     RL = ppo if alg == 'PPO' else rarl_ppo
-    RL = sac if alg == 'SAC' else rarl_sac
-    Test(RL, env, 10_000)
+    #RL = sac if alg == 'SAC' else rarl_sac
+    
+    list_for_file = []
+    for i in range(10):
+        rew, attempts, steps, rew_list = Test(RL, env, 10_000)
+        list_for_file.extend([{
+            'algorithm' : alg,
+            'perturbation' : pm_pert,
+            'steps' : elem[1],
+            'reward' : elem[0],
+            'model' : RL.model_name
+            } for elem in rew_list])
+        
+    with open(f'Files/Walker2D/{alg}_{pm_pert}.csv', 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=[k for k in list_for_file[0].keys()])
+        writer.writeheader()
+        writer.writerows(list_for_file)
 
 if __name__ == '__main__':
     #main(render=False, train=True, alg = 'PPO') # train with PPO
     #main(render=False, train=True, alg = 'RARL') # train with RARL
- #   main(render=False, train=True, pm_pert = 1, alg = 'PPO') # test PPO
+    #main(render=True, train=False, pm_pert = 0, alg = 'PPO', model_to_load = 'Models/CartPole_models/Ideal_models/CartPole_model_1') # test PPO
  #   main(render=False, train=True, pm_pert = 1, alg = 'RARL_PPO') # test RARL PPO
-    main(render=False, train=True, pm_pert = 1, alg = 'SAC') # test SAC
+    #main(render=False, train=True, pm_pert = 1, alg = 'SAC') # test SAC
   #  main(render=False, train=True, pm_pert = 1, alg = 'RARL_SAC') # test RARL SAC
     
+    for pert in [-0.9, -0.5, -0.1, 0, 0.1, 0.5, 1, 2]:
+        main(render=True, train=False, pm_pert = pert, alg = 'RARL', model_to_load = 'Models/Walker_models/Adversarial_models/Walker_feet_model_05') # test PPO
