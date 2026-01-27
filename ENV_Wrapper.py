@@ -36,7 +36,7 @@ class ENV_wrapper(gym.Wrapper):
         if self.algorithm == 'PPO' or self.algorithm == 'RARL_PPO':
             return np.array(action.squeeze(0).cpu()) * self.act_diff + self.act_min # scale action in range [act_min, act_max]
         if self.algorithm == 'SAC' or self.algorithm == 'RARL_SAC':
-            return action.detach().cpu().numpy()[0]
+            return action.detach().cpu().numpy()[0]* self.act_diff + self.act_min
 
     def _postprocess_state(self, state) -> torch.tensor:
         return torch.tensor(state, dtype=torch.float32).reshape(1,-1)
@@ -84,10 +84,10 @@ class ENV_Adversarial_wrapper(gym.Wrapper):
             return (action * (adv_action_range[1] - adv_action_range[0])) + adv_action_range[0] # scale action in range [act_min, act_max]
         
          if self.algorithm == 'SAC' or self.algorithm == 'RARL_SAC':
-             return torch.tanh(action)
+             return (action * (adv_action_range[1] - adv_action_range[0])) + adv_action_range[0] 
         
     def _preprocess_action(self, action) -> float:
-        return np.array(action.squeeze(0).cpu()) # scale action in range [act_min, act_max]
+        return np.array(action.squeeze(0).cpu().detach().numpy()) # scale action in range [act_min, act_max]
 
     def _postprocess_state(self, state) -> torch.tensor:
         return torch.tensor(state, dtype=torch.float32).reshape(1,-1)
@@ -105,3 +105,6 @@ class ENV_Adversarial_wrapper(gym.Wrapper):
     def reset(self):
         state, info = self.env.reset()
         return self._postprocess_state(state), info
+    
+    
+    

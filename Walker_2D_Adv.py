@@ -1,3 +1,4 @@
+from pyexpat import model
 import torch.nn as nn
 import numpy as np
 import mujoco
@@ -9,103 +10,16 @@ from torch.distributions import Beta
 import PPO_RARL as PPO
 import SAC_RARL
 import ENV_Wrapper
-
+import architectures as net
 import csv
-
-class Walker_NN_PPO(nn.Module):
-    def __init__(self, n_inputs = 17, n_outputs = 6) -> None:
-        super().__init__()
-
-        self.backbone = nn.Sequential(
-            nn.Linear(n_inputs, 256) , nn.ReLU(),
-            )
-
-        self.actor_FC = nn.Sequential(
-            nn.Linear(256, 128) , nn.ReLU(),
-            nn.Linear(128, 128) , nn.ReLU(),
-        )
-
-        self.alpha_head = nn.Sequential(nn.Linear(128, n_outputs), nn.Softplus())
-        self.beta_head  = nn.Sequential(nn.Linear(128, n_outputs), nn.Softplus())
-
-        self.critic = nn.Sequential(
-            nn.Linear(256, 128), nn.ReLU(),
-            nn.Linear(128, 1)
-        )
-
-    def forward(self, x):
-        x = self.backbone(x)
-        V = self.critic(x)
-
-        x = self.actor_FC(x)
-        alpha = self.alpha_head(x) + 1
-        beta  = self.beta_head(x)  + 1
-
-        return alpha, beta, V
     
-
-
-class SoftQNetwork_SAC(nn.Module):
-    def __init__(self, n_inputs = 17 + 6, n_outputs = 1) -> None:
-        super().__init__()
-
-        self.linear1 = nn.Linear(n_inputs, 256)
-        self.linear2 = nn.Linear(256, 256)
-        self.linear3 = nn.Linear(256, n_outputs)
-        
-        # inizialization of weights in a xavier uniform manner and bias to zero
-        gain = torch.nn.init.calculate_gain('relu')
-        torch.nn.init.xavier_uniform_(self.linear1.weight, gain)
-        torch.nn.init.constant_(self.linear1.bias, 0)
-        torch.nn.init.xavier_uniform_(self.linear2.weight, gain)
-        torch.nn.init.constant_(self.linear2.bias, 0)
-        torch.nn.init.xavier_uniform_(self.linear3.weight, gain)
-        torch.nn.init.constant_(self.linear3.bias, 0)
-
-    def forward(self, state, action):
-        x = torch.cat([state, action], 1)
-        x = F.relu(self.linear1(x))
-        x = F.relu(self.linear2(x))
-        x = self.linear3(x)
-        return x
-
-
-class PolicyNetwork_SAC(nn.Module):
-    def __init__(self, n_inputs = 17, n_outputs = 6) -> None:
-        super().__init__()
-
-        self.linear1 = nn.Linear(n_inputs, 256)
-        self.linear2 = nn.Linear(256, 256)
-
-        self.mean_linear = nn.Linear(256, n_outputs)
-        self.log_std_linear = nn.Linear(256, n_outputs) 
-        
-        # inizialization of weights in a xavier uniform manner and bias to zero
-        gain = torch.nn.init.calculate_gain('relu')
-        torch.nn.init.xavier_uniform_(self.linear1.weight, gain)
-        torch.nn.init.constant_(self.linear1.bias, 0)
-        torch.nn.init.xavier_uniform_(self.linear2.weight, gain)
-        torch.nn.init.constant_(self.linear2.bias, 0)
-        torch.nn.init.xavier_uniform_(self.log_std_linear.weight, gain)
-        torch.nn.init.constant_(self.log_std_linear.bias, 0)
-
-    def forward(self, x):
-        x = F.relu(self.linear1(x))
-        x = F.relu(self.linear2(x))
-        mean = self.mean_linear(x)
-        log_std = self.log_std_linear(x)
-        log_std = torch.clamp(log_std, -20, 2)
-
-        return mean, log_std
-    
-
 class Walker_env_pert(ENV_Wrapper.ENV_Adversarial_wrapper):
     def __init__(self, env_name : str,
                    action_range : list[float, float], 
                adv_action_range : list[float, float], 
                     render_mode : str    = None, 
                 is_norm_wrapper : bool   = True,
-                algorithm : str = 'SAC') -> None:
+                algorithm : str = 'RARL_SAC') -> None:
         super().__init__(env_name, action_range, adv_action_range, render_mode, is_norm_wrapper, algorithm)
 
         self.mj_model, self.mj_data = self.env.unwrapped.model, self.env.unwrapped.data
@@ -140,6 +54,7 @@ def Test(RL, env, steps = 10_000) -> tuple[float, int, int, list[float, int]]:
     reward = 0
     attempts = 0
     for i in range(steps):
+        env.update_running_stats = False 
         s, r, term, tronc, _ = env.step(RL.act(s))
         reward += r
         if term or tronc: 
@@ -166,39 +81,43 @@ def Perturbate_env(env, pert = 0):
       env.unwrapped.model.body_mass[i] += env.unwrapped.model.body_mass[i]*pert
       print(f" ---> New {i} mass: {env.unwrapped.model.body_mass[i]}")
 
-    print(f'original friction: {env.mj_model.geom_friction[env.ids['floor']]}', end='')
-    env.mj_model.geom_friction[env.ids['floor']] = [0.01, 0.001, 0.001] # [sliding, torsional, rolling]
-    print(f' ---> new friction: {env.mj_model.geom_friction[env.ids['floor']]}')
+    model = env.unwrapped.model
 
-    env.mj_model.geom_friction[env.ids['floor']] = [0.01, 0.01, 0.01] # [sliding, torsional, rolling]
+    floor_id = mujoco.mj_name2id(
+    model,
+    mujoco.mjtObj.mjOBJ_GEOM,
+    "floor"
+    )
+
+    model.geom_friction[floor_id] = np.array([0.01, 0.01, 0.01])# [sliding, torsional, rolling]
 
 
 def main(render = True, train = False, alg = 'RARL', pm_pert = 0, model_to_load = ''):
     
     if render:
-        render_mode = ENV_Wrapper.ENV_Adversarial_wrapper.HUMAN_RENDER
+        render_mode = ''#ENV_Wrapper.ENV_Adversarial_wrapper.HUMAN_RENDER
         
     # init environment and neural networks
     if alg in ['PPO', 'RARL_PPO', 'RARL']:
         
-        player = Walker_NN_PPO()
-        opponent = Walker_NN_PPO(n_outputs=4) # 2 output for X, Y forces on both feat
+        player = net.Walker_NN_PPO()
+        opponent = net.Walker_NN_PPO(n_outputs=4) # 2 output for X, Y forces on both feat
     
     if alg in ['SAC', 'RARL_SAC']:
         
         player = {
-            'policy': PolicyNetwork_SAC(),
-            'Q1_target': SoftQNetwork_SAC(),
-            'Q2_target': SoftQNetwork_SAC(),
-            'Q1'    : SoftQNetwork_SAC(),
-            'Q2'    : SoftQNetwork_SAC()
+            'policy': net.PolicyNetwork_SAC(),
+            'Q1_target': net.SoftQNetwork_SAC(),
+            'Q2_target': net.SoftQNetwork_SAC(),
+            'Q1'    : net.SoftQNetwork_SAC(),
+            'Q2'    : net.SoftQNetwork_SAC()
         }
         opponent = {
-            'policy': PolicyNetwork_SAC(),
-            'Q1_target': SoftQNetwork_SAC(),
-            'Q2_target': SoftQNetwork_SAC(),
-            'Q1'    : SoftQNetwork_SAC(),
-            'Q2'    : SoftQNetwork_SAC()
+            'policy': net.PolicyNetwork_SAC(n_outputs=4),
+            'Q1_target': net.SoftQNetwork_SAC(n_inputs = 17 + 4),
+            'Q2_target': net.SoftQNetwork_SAC(n_inputs = 17 + 4),
+            'Q1'    : net.SoftQNetwork_SAC(n_inputs = 17 + 4),
+            'Q2'    : net.SoftQNetwork_SAC(n_inputs = 17 + 4)
         }
 
     if alg in ['SAC']:
@@ -211,7 +130,7 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, model_to_load 
             is_norm_wrapper=False, algorithm= alg)
         
     else:
-        
+
         env = Walker_env_pert(
             env_name='Walker2d-v5',
             action_range=[-1.0, 1.0],
@@ -237,18 +156,19 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, model_to_load 
         ppo.load()
 
     if alg == 'RARL_SAC':
-        rarl_sac = SAC_RARL.RARL_SAC(player, opponent, env, print_flag=False, lr_player=1e-4, name='Walker_2D_Adversarial_SAC_model')
+        rarl_sac = SAC_RARL.RARL_SAC(player, opponent, env, print_flag=False, lr_Q=3e-4, lr_pi=1e-4, name='Walker_2D_Adversarial_SAC_model')
         if train: rarl_sac.train(player_episode=10, 
                              opponent_episode=4, 
-                             episodes=10, 
-                             mini_bach=128, 
-                             max_steps_rollouts=2048, 
+                             episodes=1000, 
+                             epoch = 1,
+                             mini_batch=128, 
+                             max_steps_rollouts=1024, 
                              continue_prev_train=False)
         rarl_sac.load()
         
     elif alg == 'SAC':
-        sac = SAC_RARL.SAC(player['Q1_target'], player['Q2_target'], player['Q1'], player ['Q2'], player['policy'], env, print_flag=False, lr_Q=1e-4, lr_pi=1e-4, name='Walker_2D_model_SAC')
-        if train: sac.train(episodes=1000, epoch=100, mini_batch=256, max_steps_rollouts=1024, continue_prev_train=False)
+        sac = SAC_RARL.SAC(player['Q1_target'], player['Q2_target'], player['Q1'], player ['Q2'], player['policy'], env, print_flag=False, lr_Q=3e-4, lr_pi=1e-4, name='Walker_2D_model_SAC')
+        if train: sac.train(episodes=1000, epoch=1, mini_batch=128, max_steps_rollouts=1024, continue_prev_train=False)
         sac.load()
 
     env.close()
@@ -256,7 +176,7 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, model_to_load 
     # render the simulation if needed
     if not render: return
 
-    # perturbate the modle paramether
+    # perturbate the model paramether
     Perturbate_env(env, pm_pert)
     
     # choise the algorithm for run the simulation
@@ -273,8 +193,8 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, model_to_load 
             'reward' : elem[0],
             'model' : RL.model_name
             } for elem in rew_list])
-        
-    with open(f'Files/Walker2D/{alg}_{pm_pert}.csv', 'w', newline='') as csvfile:
+    token = model_to_load.split("/")[-1]
+    with open(f'Files/Walker2D/{alg}_{pm_pert}_{token}.csv', 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=[k for k in list_for_file[0].keys()])
         writer.writeheader()
         writer.writerows(list_for_file)
@@ -287,5 +207,6 @@ if __name__ == '__main__':
     #main(render=False, train=True, pm_pert = 1, alg = 'SAC') # test SAC
   #  main(render=False, train=True, pm_pert = 1, alg = 'RARL_SAC') # test RARL SAC
     
-    for pert in [-0.9, -0.5, -0.1, 0, 0.1, 0.5, 1, 2]:
-        main(render=True, train=False, pm_pert = pert, alg = 'RARL', model_to_load = 'Models/Walker_models/Adversarial_models/Walker_feet_model_05') # test PPO
+    for file in ["Walker_feet_model", "Walker_feet_model_01", "Walker_feet_model_05"]:
+        for pert in [-0.9, -0.5, -0.1, 0, 0.1, 0.5, 1, 2]:
+            main(render=True, train=False, pm_pert = pert, alg = 'RARL', model_to_load = f'Models/Walker_models/Adversarial_models/{file}') # test PPO
