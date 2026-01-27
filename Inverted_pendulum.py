@@ -8,92 +8,11 @@ from torch.distributions import Beta
 import PPO_RARL as PPO
 import SAC_RARL as SAC 
 import ENV_Wrapper as Env
+import architectures as net
 
 import csv
 
-class SoftQNetwork_SAC(nn.Module):
-    def __init__(self, n_inputs = 4 + 1, n_outputs = 1) -> None:
-        super().__init__()
 
-        self.linear1 = nn.Linear(n_inputs, 256)
-        self.linear2 = nn.Linear(256, 256)
-        self.linear3 = nn.Linear(256, n_outputs)
-        
-        # inizialization of weights in a xavier uniform manner and bias to zero
-        
-        gain = torch.nn.init.calculate_gain('relu')
-        torch.nn.init.xavier_uniform_(self.linear1.weight, gain)
-        torch.nn.init.constant_(self.linear1.bias, 0)
-        torch.nn.init.xavier_uniform_(self.linear2.weight, gain)
-        torch.nn.init.constant_(self.linear2.bias, 0)
-        torch.nn.init.xavier_uniform_(self.linear3.weight, gain)
-        torch.nn.init.constant_(self.linear3.bias, 0)
-        
-
-    def forward(self, state, action):
-        x = torch.cat([state, action], 1)
-        x = F.relu(self.linear1(x))
-        x = F.relu(self.linear2(x))
-        x = self.linear3(x)
-        return x
-
-
-class PolicyNetwork_SAC(nn.Module):
-    def __init__(self, n_inputs = 4, n_outputs = 1) -> None:
-        super().__init__()
-
-        self.linear1 = nn.Linear(n_inputs, 256)
-        self.linear2 = nn.Linear(256, 256)
-
-        self.mean_linear = nn.Linear(256, n_outputs)
-        self.log_std_linear = nn.Linear(256, n_outputs) 
-        
-        # inizialization of weights in a xavier uniform manner and bias to zero
-        
-        gain = torch.nn.init.calculate_gain('relu')
-        torch.nn.init.xavier_uniform_(self.linear1.weight, gain)
-        torch.nn.init.constant_(self.linear1.bias, 0)
-        torch.nn.init.xavier_uniform_(self.linear2.weight, gain)
-        torch.nn.init.constant_(self.linear2.bias, 0)
-        torch.nn.init.xavier_uniform_(self.log_std_linear.weight, gain)
-        torch.nn.init.constant_(self.log_std_linear.bias, 0)
-        
-
-    def forward(self, x):
-        x = F.relu(self.linear1(x))
-        x = F.relu(self.linear2(x))
-        mean = self.mean_linear(x)
-        log_std = self.log_std_linear(x)
-        log_std = torch.clamp(log_std, -20, 2)
-
-        return mean, log_std
-
-class CartPole_NN(nn.Module):
-    def __init__(self, n_inputs = 4, n_outputs = 1) -> None:
-        super().__init__()
-
-        self.backbone = nn.Sequential(nn.Linear(n_inputs, 32), nn.ReLU())
-
-        self.actor_FC = nn.Sequential(
-            nn.Linear(32, 32) , nn.ReLU(),
-        )
-
-        self.alpha_head = nn.Sequential(nn.Linear(32, n_outputs), nn.Softplus())
-        self.beta_head  = nn.Sequential(nn.Linear(32, n_outputs), nn.Softplus())
-
-        self.critic = nn.Sequential(
-            nn.Linear(32, 1), nn.ReLU(),
-        )
-
-    def forward(self, x):
-        x = self.backbone(x)
-        V = self.critic(x)
-
-        x = self.actor_FC(x)
-        alpha = self.alpha_head(x) + 1
-        beta  = self.beta_head(x)  + 1
-
-        return alpha, beta, V
 
 class CartPole(gym.Wrapper):
     def __init__(self, render_mode = None, algorithm = 'SAC') -> None:
@@ -143,7 +62,7 @@ def Test(RL, env, steps = 10_000) -> tuple[float, int, int, list[float, int]]:
         s, r, term, tronc, _ = env.step_alone(RL.act(s))
         reward += r
         if term or tronc: 
-            s, _ = env.reset()
+            s, _ = env.reset()  
             attempts += 1
             rew_list.append((reward - np.sum([r[0] for r in rew_list]), i+1 - np.sum([s[1] for s in rew_list])))
         if np.mod(i, 1000) == 0: print('#', end='', flush=True)
@@ -167,24 +86,24 @@ def main(render = True, train = True, alg = 'RARL', pm_pert = 0, model_to_load =
 
     if alg in ['PPO', 'RARL_PPO', 'RARL']:
         
-        player = CartPole_NN()
-        opponent = CartPole_NN() # 2 output for X, Y forces on both feat
+        player = net.CartPole_NN()
+        opponent = net.CartPole_NN() # 2 output for X, Y forces on both feat
     
     if alg in ['SAC', 'RARL_SAC']:
         
         player = {
-            'policy': PolicyNetwork_SAC(),
-            'Q1_target': SoftQNetwork_SAC(),
-            'Q2_target': SoftQNetwork_SAC(),
-            'Q1'    : SoftQNetwork_SAC(),
-            'Q2'    : SoftQNetwork_SAC()
+            'policy': net.PolicyNetwork_SAC(),
+            'Q1_target': net.SoftQNetwork_SAC(),
+            'Q2_target': net.SoftQNetwork_SAC(),
+            'Q1'    : net.SoftQNetwork_SAC(),
+            'Q2'    : net.SoftQNetwork_SAC()
         }
         opponent = {
-            'policy': PolicyNetwork_SAC(),
-            'Q1_target': SoftQNetwork_SAC(),
-            'Q2_target': SoftQNetwork_SAC(),
-            'Q1'    : SoftQNetwork_SAC(),
-            'Q2'    : SoftQNetwork_SAC()
+            'policy': net.PolicyNetwork_SAC(),
+            'Q1_target': net.SoftQNetwork_SAC(),
+            'Q2_target': net.SoftQNetwork_SAC(),
+            'Q1'    : net.SoftQNetwork_SAC(),
+            'Q2'    : net.SoftQNetwork_SAC()
         }
 
     # init the PPO or RARL_PPO algorithm
