@@ -655,7 +655,6 @@ class RARL_SAC():
                 
             print(f"[T]: end episode {episode} windows: | {window} | mean rewards: {mean_rew/tranches}")
                 
-            
             if(np.mod(episode, self.save_interval) == 0):
                 self.save()
                 

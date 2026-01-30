@@ -2,6 +2,7 @@ import gymnasium as gym
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import mujoco
 import numpy as np
 
 
@@ -13,7 +14,7 @@ class ENV_wrapper(gym.Wrapper):
                         act_min : float, 
                         act_max : float, 
                     render_mode : str    = None, 
-                is_norm_wrapper : bool   = True, algorithm : str = 'SAC'
+                is_norm_wrapper : bool   = True, algorithm : str = 'PPO'
                         ) -> None:
 
         self.env_name = env_name
@@ -60,15 +61,17 @@ class ENV_Adversarial_wrapper(gym.Wrapper):
                adv_action_range : list[float, float], 
                     render_mode : str    = None, 
                 is_norm_wrapper : bool   = True, 
-                algorithm : str = 'SAC') -> None:
+                algorithm : str = 'RARL_PPO') -> None:
                
 
         self.env_name = env_name
         self.is_norm_wrapper = is_norm_wrapper
         self.algorithm = algorithm
+        self.rendering = render_mode == ENV_Adversarial_wrapper.HUMAN_RENDER
+        self.ids = {}
 
-        if render_mode == ENV_wrapper.HUMAN_RENDER:
-            self.env = gym.make(self.env_name, render_mode = ENV_wrapper.HUMAN_RENDER)
+        if self.rendering:
+            self.env = gym.make(self.env_name, render_mode = ENV_Adversarial_wrapper.HUMAN_RENDER) #,visual_options = {mujoco.mjtVisFlag.mjVIS_CONTACTPOINT: True, mujoco.mjtVisFlag.mjVIS_CONTACTFORCE: True})
         else:
             self.env = gym.make(self.env_name)
         
@@ -77,6 +80,9 @@ class ENV_Adversarial_wrapper(gym.Wrapper):
         
         self.action_range = action_range
         self.adv_action_range = adv_action_range
+        self.mj_model, self.mj_data = self.env.unwrapped.model, self.env.unwrapped.data
+        self.last_force = None
+        self.last_force_body = None
 
     def _scale_action(self, action, adv_action_range):
         
@@ -99,12 +105,46 @@ class ENV_Adversarial_wrapper(gym.Wrapper):
             action_for_env = self._scale_action(action, self.action_range) + self._scale_action(action_adv, self.adv_action_range)
             
         state, reward, terminated, truncated, info = self.env.step(self._preprocess_action(action_for_env))
-
         return self._postprocess_state(state), reward, terminated, truncated, info
 
     def reset(self):
         state, info = self.env.reset()
         return self._postprocess_state(state), info
+    
+    def render_forces(self):
+
+        if not self.rendering: return
+        if self.last_force is None:return
+        scene = self.env.unwrapped.mujoco_renderer.viewer.scn
+
+        if scene.ngeom >= scene.maxgeom:
+            return
+
+        body_id = self.last_force_body
+        pos = self.mj_data.xpos[body_id].copy()
+
+        force = self.last_force[:3]
+        norm = np.linalg.norm(force)
+        if norm < 1e-6:
+            print("Force too small to be rendered")
+            return
+
+        direction = force / norm
+        scale = 1.0
+        end = pos + scale * direction
+
+        rgba = np.array([1.0, 0.0, 0.0, 1.0], dtype=np.float32)
+        radius = 0.08
+        scene.ngeom += 1
+        geom = scene.geoms[scene.ngeom - 1]
+        mujoco.mjv_initGeom(geom,mujoco.mjtGeom.mjGEOM_ARROW,np.zeros(3, dtype=np.float64),np.zeros(3, dtype=np.float64),np.zeros(9, dtype=np.float64),rgba)
+        mujoco.mjv_connector(geom,mujoco.mjtGeom.mjGEOM_ARROW,radius,pos.astype(np.float64),end.astype(np.float64))
+    
+    def render(self):
+        
+        out = self.env.unwrapped.render()
+        self.render_forces()
+        return out
     
     
     
