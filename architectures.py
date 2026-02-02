@@ -89,61 +89,61 @@ class Walker_NN_PPO(nn.Module):
         return alpha, beta, V
     
     
-    class CartPole_NN(nn.Module):
-        def __init__(self, n_inputs = 4, n_outputs = 1) -> None:
-            super().__init__()
+class CartPole_NN(nn.Module):
+    def __init__(self, n_inputs = 4, n_outputs = 1) -> None:
+        super().__init__()
 
-            self.backbone = nn.Sequential(nn.Linear(n_inputs, 32), nn.ReLU())
+        self.backbone = nn.Sequential(nn.Linear(n_inputs, 32), nn.ReLU())
 
-            self.actor_FC = nn.Sequential(
-                nn.Linear(32, 32) , nn.ReLU(),
-            )
+        self.actor_FC = nn.Sequential(
+            nn.Linear(32, 32) , nn.ReLU(),
+        )
 
-            self.alpha_head = nn.Sequential(nn.Linear(32, n_outputs), nn.Softplus())
-            self.beta_head  = nn.Sequential(nn.Linear(32, n_outputs), nn.Softplus())
+        self.alpha_head = nn.Sequential(nn.Linear(32, n_outputs), nn.Softplus())
+        self.beta_head  = nn.Sequential(nn.Linear(32, n_outputs), nn.Softplus())
 
-            self.critic = nn.Sequential(
-                nn.Linear(32, 1), nn.ReLU(),
-            )
+        self.critic = nn.Sequential(
+            nn.Linear(32, 1), nn.ReLU(),
+        )
 
-        def forward(self, x):
-            x = self.backbone(x)
-            V = self.critic(x)
+    def forward(self, x):
+        x = self.backbone(x)
+        V = self.critic(x)
 
-            x = self.actor_FC(x)
-            alpha = self.alpha_head(x) + 1
-            beta  = self.beta_head(x)  + 1
+        x = self.actor_FC(x)
+        alpha = self.alpha_head(x) + 1
+        beta  = self.beta_head(x)  + 1
 
-            return alpha, beta, V
+        return alpha, beta, V
         
         
-    class HalfCheetah_NN(nn.Module):
-        def __init__(self, n_inputs = 17, n_outputs = 6) -> None:
-            super().__init__()
+class HalfCheetah_NN(nn.Module):
+    def __init__(self, n_inputs = 17, n_outputs = 6) -> None:
+        super().__init__()
 
-            self.backbone = nn.Sequential(
-                nn.Linear(n_inputs, 256) , nn.ReLU(),
-                )
-
-            self.actor_FC = nn.Sequential(
-                nn.Linear(256, 128) , nn.ReLU(),
-                nn.Linear(128, 128) , nn.ReLU(),
+        self.backbone = nn.Sequential(
+            nn.Linear(n_inputs, 256) , nn.ReLU(),
             )
 
-            self.alpha_head = nn.Sequential(nn.Linear(128, n_outputs), nn.Softplus())
-            self.beta_head  = nn.Sequential(nn.Linear(128, n_outputs), nn.Softplus())
+        self.actor_FC = nn.Sequential(
+            nn.Linear(256, 128) , nn.ReLU(),
+            nn.Linear(128, 128) , nn.ReLU(),
+        )
 
-            self.critic = nn.Sequential(
-                nn.Linear(256, 128), nn.ReLU(),
-                nn.Linear(128, 1)
-            )
+        self.alpha_head = nn.Sequential(nn.Linear(128, n_outputs), nn.Softplus())
+        self.beta_head  = nn.Sequential(nn.Linear(128, n_outputs), nn.Softplus())
 
-        def forward(self, x):
-            x = self.backbone(x)
-            V = self.critic(x)
+        self.critic = nn.Sequential(
+            nn.Linear(256, 128), nn.ReLU(),
+            nn.Linear(128, 1)
+        )
 
-            x = self.actor_FC(x)
-            alpha = self.alpha_head(x) + 1
-            beta  = self.beta_head(x)  + 1
+    def forward(self, x):
+        x = self.backbone(x)
+        V = self.critic(x)
 
-            return alpha, beta, V
+        x = self.actor_FC(x)
+        alpha = self.alpha_head(x) + 1
+        beta  = self.beta_head(x)  + 1
+
+        return alpha, beta, V
