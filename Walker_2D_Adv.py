@@ -76,14 +76,16 @@ def Perturbate_env(env, pert = 0):
     # must be perturbed the walker model
 
     # modify pendolum mass
+    '''
     for i in [0, 1, 2, 3, 4, 5]:
       print(f"Original {i} mass: {env.unwrapped.model.body_mass[i]}", end='')
       env.unwrapped.model.body_mass[i] += env.unwrapped.model.body_mass[i]*pert
       print(f" ---> New {i} mass: {env.unwrapped.model.body_mass[i]}")
-
+    '''
     model = env.unwrapped.model
     floor_id = mujoco.mj_name2id(model,mujoco.mjtObj.mjOBJ_GEOM,"floor")
-    model.geom_friction[floor_id] = np.array([0.01, 0.01, 0.01])# [sliding, torsional, rolling]
+
+    model.geom_friction[floor_id] *= pert #np.array([0.01, 0.01, 0.01])# [sliding, torsional, rolling]
 
 
 def main(render = True, train = False, alg = 'RARL', pm_pert = 0, model_to_load = ''):
@@ -178,8 +180,8 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, model_to_load 
     #RL = sac if alg == 'SAC' else rarl_sac
     
     list_for_file = []
-    for i in range(10):
-        rew, attempts, steps, rew_list = Test(RL, env, 10_000)
+    for i in range(5):
+        rew, attempts, steps, rew_list = Test(RL, env, 3_000)
         list_for_file.extend([{
             'algorithm' : alg,
             'perturbation' : pm_pert,
@@ -188,7 +190,8 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, model_to_load 
             'model' : RL.model_name
             } for elem in rew_list])
     token = model_to_load.split("/")[-1]
-    with open(f'Files/Walker2D/{alg}_{pm_pert}_{token}.csv', 'w', newline='') as csvfile:
+    # SPECIFY THE NAME OF THE FILE WHAT IS PERTURBED LIKE MASS FRICTION OR BOTH
+    with open(f'Files/Walker2D/{alg}_{pm_pert}_{token}_to_specify.csv', 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=[k for k in list_for_file[0].keys()])
         writer.writeheader()
         writer.writerows(list_for_file)
@@ -201,6 +204,13 @@ if __name__ == '__main__':
     #main(render=False, train=True, pm_pert = 1, alg = 'SAC') # test SAC
   #  main(render=False, train=True, pm_pert = 1, alg = 'RARL_SAC') # test RARL SAC
     
+    '''
     for file in ["Walker_feet_model", "Walker_feet_model_01", "Walker_feet_model_05"]:
-        for pert in [-0.9, -0.5, -0.1, 0, 0.1, 0.5, 1, 2]:
+        for pert in [i*0.1 for i in range(0,20)]: #From -0.9 to 1  [-0.9, -0.5, -0.1, 0, 0.1, 0.5, 1, 2]
             main(render=True, train=False, pm_pert = pert, alg = 'RARL', model_to_load = f'Models/Walker_models/Adversarial_models/{file}') # test PPO
+    '''
+
+    '''
+    for pert in [-0.9 + i*0.1 for i in range(0,20)]: #From -0.9 to 1.5  [-0.9, -0.5, -0.1, 0, 0.1, 0.5, 1, 2]
+        main(render=True, train=False, pm_pert = pert, alg = 'PPO', model_to_load = f'Models/Walker_models/Ideal_models/Walker_model_colab') # test PPO
+    '''
