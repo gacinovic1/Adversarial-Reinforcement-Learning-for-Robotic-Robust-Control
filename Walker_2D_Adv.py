@@ -72,7 +72,6 @@ def Test(RL, env, steps = 10_000) -> tuple[float, int, int, list[float, int]]:
 
 
 def Perturbate_env(env, pert = 0, frict = 1.0):
-    if pert == 0: return
     # must be perturbed the walker model
 
     # modify pendolum mass
@@ -119,7 +118,7 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, m
             'Q2'    : net.SoftQNetwork_SAC(n_inputs = 17 + 4)
         }
 
-    if alg in ['SAC']:
+    if alg in ['SAC', 'PPO'] or (alg in ['RARL_PPO', 'RARL_SAC'] and not train):
         
         env = ENV_Wrapper.ENV_wrapper(
             env_name='Walker2d-v5',
@@ -139,7 +138,7 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, m
         
 
     # init the PPO or RARL_PPO algorithm
-    if alg in ['RARL_PPO', 'RARL']:
+    if alg in ["RARL_PPO", "RARL"]:
         rarl_ppo = PPO.RARL_PPO(player, opponent, env, print_flag=False, lr_player=1e-4, name='Walker_2D_Adversarial_PPO_model' if model_to_load == '' else model_to_load)
         if train: rarl_ppo.train(player_episode=10, 
                              opponent_episode=4, 
@@ -170,16 +169,19 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, m
         if train: sac.train(episodes=1000, epoch=1, mini_batch=128, max_steps_rollouts=1024, continue_prev_train=False)
         sac.load()
 
-    env.close()
+   # env.close()
 
     # render the simulation if needed
-    if not render: return
+    #if not render: return
 
     # perturbate the model paramether
     new_mass, new_friction = Perturbate_env(env, pm_pert, frict)
     
     # choise the algorithm for run the simulation
-    RL = ppo if alg == 'PPO' else rarl_ppo
+    RL = ppo  if alg == 'PPO' else \
+        rarl_ppo if alg == 'RARL_PPO' else\
+        sac if alg == 'SAC' else \
+        rarl_sac 
     #RL = sac if alg == 'SAC' else rarl_sac
     
     list_for_file = []
@@ -188,7 +190,7 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, m
         list_for_file.extend([{
             'algorithm' : alg,
             'Mass' : new_mass,
-            'friction': new_friction,
+            'Friction': new_friction,
             'steps' : elem[1],
             'reward' : elem[0],
             'model' : RL.model_name
@@ -207,11 +209,17 @@ if __name__ == '__main__':
     #main(render=False, train=True, pm_pert = 1, alg = 'SAC') # test SAC
   #  main(render=False, train=True, pm_pert = 1, alg = 'RARL_SAC') # test RARL SAC
     
-    
+    '''
     for file in ["Walker_feet_model", "Walker_feet_model_01", "Walker_feet_model_05"]:
-        for pert in [-2.5,-1.7,-1.3,-0.9, -0.5, -0.1, 0, 0.3, 0.7, 1, 1.5, 2, 2.5]:
-            main(render=True, train=False, pm_pert = pert, frict=1.0, alg = 'RARL', model_to_load = f'Models/Walker_models/Adversarial_models/{file}') # test PPO
+        for pert in [-0.9, -0.7, -0.5, -0.3, -0.1, 0.0,0.2, 0.5, 0.7, 0.9, 1]:
+            main(render=False, train=False, pm_pert = pert, frict=1.0, alg = 'RARL_PPO', model_to_load = f'Models/Walker_models/Adversarial_models/{file}') # test PPO
             
     for file in ["Walker_feet_model", "Walker_feet_model_01", "Walker_feet_model_05"]:
         for frict in [0.0,0.1, 0.4, 0.8, 1.0, 1.3, 1.7, 2.0, 2.2, 2.5]:
-            main(render=True, train=False, pm_pert = 0, frict=frict, alg = 'RARL', model_to_load = f'Models/Walker_models/Adversarial_models/{file}') # test PPO
+            main(render=False, train=False, pm_pert = 0, frict=frict, alg = 'RARL_PPO', model_to_load = f'Models/Walker_models/Adversarial_models/{file}') # test PPO
+        '''
+    for pert in [-0.9, -0.7, -0.5, -0.3, -0.1, 0.0,0.2, 0.5, 0.7, 0.9, 1]:
+        main(render=False, train=False, pm_pert = pert, frict=1.0, alg = 'PPO', model_to_load = f'Models/Walker_models/Ideal_models/Walker_model_colab') # test PPO
+            
+    for frict in [0.0,0.1, 0.4, 0.8, 1.0, 1.3, 1.7, 2.0, 2.2, 2.5]:
+        main(render=False, train=False, pm_pert = 0, frict=frict, alg = 'PPO', model_to_load = f'Models/Walker_models/Ideal_models/Walker_model_colab') # test PPO

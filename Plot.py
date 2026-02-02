@@ -5,10 +5,10 @@ from pathlib import Path
 def plot_reward_vs_mass(csv_files,base_algs=('PPO', 'SAC'), rarl_algs=('RARL'),use_std=True,title='Walker2D', perturbation = ("Mass", "Friction")):
  
 
-    if base_algs[0] == 'PPO' and rarl_algs[0] == 'RARL':
+    if base_algs[0] == 'PPO' and rarl_algs[0] == 'RARL_PPO':
         label1 = "PPO"
         label2 = "RARL_PPO"
-    elif base_algs[0] == 'SAC' and rarl_algs[0] == 'RARL':
+    elif base_algs[0] == 'SAC' and rarl_algs[0] == 'RARL_SAC':
         label1 = "SAC"
         label2 = "RARL_SAC"
     else:
@@ -66,10 +66,10 @@ def main():
     plot_reward_vs_mass(
         csv_files=csvs,
         base_algs=("PPO",),
-        rarl_algs=("RARL",),
+        rarl_algs=("RARL_PPO",),
         use_std=False,  
         title='Walker2D',
-        perturbation = ("Mass"),
+        perturbation = ('Mass',),
     )
     
 if __name__ == '__main__':
