@@ -59,7 +59,7 @@ class SAC():
                  lr_pi          : float = 1e-4,
                  gamma          : float = 0.99,
                  tau        : float = 0.005,
-                 log_alpha  : float = -1.60944,  # to start with alpha = 0.2
+                 log_alpha  : float = -1.60944,  # to start with alpha = 0.2  log= -1.60944,
                  lr_alpha    : float = 1e-4,
                  epsilon        : float = 1e-6,
                  print_flag     : bool  = True,

@@ -178,6 +178,6 @@ if __name__ == '__main__':
     #main(render=False, train=True, alg = 'RARL') # train with RARL
  #   main(render=False, train=True, pm_pert = 1, alg = 'PPO') # test PPO
  #   main(render=False, train=True, pm_pert = 1, alg = 'RARL_PPO') # test RARL PPO
-    main(render=True, train=True, pm_pert = 1, alg = 'RARL_SAC') # test SAC
+    main(render=False, train=True, pm_pert = 1, alg = 'RARL_SAC') # test SAC
   #  main(render=False, train=True, pm_pert = 1, alg = 'RARL_SAC') # test RARL SAC
     

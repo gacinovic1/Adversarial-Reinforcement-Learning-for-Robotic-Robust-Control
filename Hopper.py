@@ -147,7 +147,7 @@ def main(render = True, train = False, alg = 'SAC_RARL', pm_pert = 0):
         rarl_sac = SAC_RARL.RARL_SAC(player, opponent, env, print_flag=False, lr_Q=3e-4, lr_pi=1e-4, name='Hopper_Adversarial_SAC_model')
         if train: rarl_sac.train(player_episode=10, 
                              opponent_episode=4, 
-                             episodes=1000, 
+                             episodes=400, 
                              epoch = 1,
                              mini_batch=128, 
                              max_steps_rollouts=1024, 
@@ -180,6 +180,6 @@ if __name__ == '__main__':
     #main(render=False, train=True, alg = 'RARL') # train with RARL
  #   main(render=False, train=True, pm_pert = 1, alg = 'PPO') # test PPO
  #   main(render=False, train=True, pm_pert = 1, alg = 'RARL_PPO') # test RARL PPO
-    main(render=True, train=True, pm_pert = 1, alg = 'RARL_SAC') # test SAC
+    main(render=False, train=True, pm_pert = 1, alg = 'RARL_SAC') # test SAC
   #  main(render=False, train=True, pm_pert = 1, alg = 'RARL_SAC') # test RARL SAC
     
