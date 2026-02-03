@@ -118,7 +118,7 @@ def Perturbate_env(env, pert = 0, frict = 1.0):
     model = env.unwrapped.model
     floor_id = mujoco.mj_name2id(model,mujoco.mjtObj.mjOBJ_GEOM,"floor")
     print(f'original friction: {env.mj_model.geom_friction[env.ids['floor']]}', end='')
-    env.mj_model.geom_friction[env.ids['floor']] = [0.01, 0.001, 0.001] # [sliding, torsional, rolling]
+    model.geom_friction[floor_id] = model.geom_friction[floor_id][0] * frict # sliding # [sliding, torsional, rolling]
     print(f' ---> new friction: {env.mj_model.geom_friction[env.ids['floor']]}')
     new_friction = model.geom_friction[floor_id][0]
 
@@ -158,7 +158,7 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, m
     if not render: return
 
     # perturbate the modle paramether
-    new_mass, new_friction = Perturbate_env(env, pm_pert)
+    new_mass, new_friction = Perturbate_env(env if alg == 'PPO' else env.env, pm_pert, frict)
 
     # choise the algorithm for run the simulation
     RL = ppo if alg == 'PPO' else rarl_ppo
@@ -176,12 +176,12 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, m
             } for elem in rew_list])
     token = model_to_load.split("/")[-1]
 
-    string_pert = '' + ('mass_' if pm_pert != 1 else '') + ('friction' if frict != 0 else '')
+    perturbation = '' + ('Mass_' if pm_pert != 0.0 else '') + ('Friction_' if frict != 1.0 else '')
 
     if not heatmap:
-        file = f'Files/Half_C/{alg}_{string_pert}{new_mass}_{new_friction}_{token}.csv'
+        file = f'Files/Half_C/{alg}_{perturbation}{new_mass}_{new_friction}_{token}.csv'
     else:
-        file = f'Files/Half_C/heatmap/{alg}_{string_pert}{new_mass}_{new_friction}_{token}_heatmap.csv'
+        file = f'Files/Half_C/heatmap/{alg}_{perturbation}{new_mass}_{new_friction}_{token}_heatmap.csv'
     
     with open(file, 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=[k for k in list_for_file[0].keys()])
@@ -194,8 +194,8 @@ if __name__ == '__main__':
     #main(render=True, train=False, pm_pert = -0.1, alg = 'PPO') # test PPO
     #main(render=True, train=False, pm_pert = -0.1, alg = 'RARL') # test RARL
 
-    for path, alg in zip(['Ideal_models/HalfCeetah', 'Adversarial_models/HalfCeetah_adversarial'], ['PPO', 'RARL']):
+    for path, alg in zip(['Adversarial_models/HalfCeetah_adversarial'], ['RARL']):
         for pert in [-0.9, -0.7, -0.5, -0.3, -0.1, 0.0,0.2, 0.5, 0.7, 0.9, 1]:
-            for frict in [0.0,0.1, 0.4, 0.8, 1.0, 1.3, 1.7, 2.0, 2.2, 2.5]:
+            for frict in [0.0, 0.1, 0.4, 0.8, 1.0, 1.3, 1.7, 2.0, 2.2, 2.5]:
                 main(render=True, train=False, pm_pert = pert, frict=frict, alg = alg, model_to_load = f'Models/HalfCitah_models/' + path, heatmap = True) # test RARL_PPO
                 

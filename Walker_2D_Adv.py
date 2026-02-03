@@ -87,7 +87,7 @@ def Perturbate_env(env, pert = 0, frict = 1.0):
     
     return new_mass, new_friction
 
-def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, model_to_load = '', heatmap = False):
+def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, model_to_load = '', heatmap = False, perturbation = "Mass"):
     
     if render:
         render_mode = ENV_Wrapper.ENV_Adversarial_wrapper.HUMAN_RENDER
@@ -194,7 +194,9 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, m
             } for elem in rew_list])
     token = model_to_load.split("/")[-1]
     if not heatmap:
-        file = f'Files/Walker2D/{alg}_{new_mass}_{new_friction}_{token}.csv'
+        
+        file = f'Files/Walker2D/{alg}_{perturbation}_{new_mass}_{new_friction}_{token}.csv'
+        
     else:
         file = f'Files/Walker2D/heatmap/{alg}_{new_mass}_{new_friction}_{token}_heatmap.csv'
     
@@ -214,20 +216,22 @@ if __name__ == '__main__':
     '''
     for file in ["Walker_feet_model", "Walker_feet_model_01", "Walker_feet_model_05"]:
         for pert in [-0.9, -0.7, -0.5, -0.3, -0.1, 0.0,0.2, 0.5, 0.7, 0.9, 1]:
-            main(render=False, train=False, pm_pert = pert, frict=1.0, alg = 'RARL_PPO', model_to_load = f'Models/Walker_models/Adversarial_models/{file}') # test RARL_PPO
+            main(render=False, train=False, pm_pert = pert, frict=1.0, alg = 'RARL_PPO', model_to_load = f'Models/Walker_models/Adversarial_models/{file}', perturbation = "Mass") # test RARL_PPO
+    '''
             
     for file in ["Walker_feet_model", "Walker_feet_model_01", "Walker_feet_model_05"]:
         for frict in [0.0,0.1, 0.4, 0.8, 1.0, 1.3, 1.7, 2.0, 2.2, 2.5]:
-            main(render=False, train=False, pm_pert = 0, frict=frict, alg = 'RARL_PPO', model_to_load = f'Models/Walker_models/Adversarial_models/{file}') # test RARL_PPO
-        
+            main(render=False, train=False, pm_pert = 0, frict=frict, alg = 'RARL_PPO', model_to_load = f'Models/Walker_models/Adversarial_models/{file}', perturbation = "Friction") # test RARL_PPO
+    '''   
     for pert in [-0.9, -0.7, -0.5, -0.3, -0.1, 0.0,0.2, 0.5, 0.7, 0.9, 1]:
-        main(render=False, train=False, pm_pert = pert, frict=1.0, alg = 'PPO', model_to_load = f'Models/Walker_models/Ideal_models/Walker_model_colab') # test PPO
-            
+        main(render=False, train=False, pm_pert = pert, frict=1.0, alg = 'PPO', model_to_load = f'Models/Walker_models/Ideal_models/Walker_model_colab', perturbation = "Mass") # test PPO
+     '''       
     for frict in [0.0,0.1, 0.4, 0.8, 1.0, 1.3, 1.7, 2.0, 2.2, 2.5]:
-        main(render=False, train=False, pm_pert = 0, frict=frict, alg = 'PPO', model_to_load = f'Models/Walker_models/Ideal_models/Walker_model_colab') # test PPO
-    '''
+        main(render=False, train=False, pm_pert = 0, frict=frict, alg = 'PPO', model_to_load = f'Models/Walker_models/Ideal_models/Walker_model_colab', perturbation = "Friction") # test PPO
     
+    '''
     for pert in [-0.9, -0.7, -0.5, -0.3, -0.1, 0.0,0.2, 0.5, 0.7, 0.9, 1]:
         for frict in [0.0,0.1, 0.4, 0.8, 1.0, 1.3, 1.7, 2.0, 2.2, 2.5]:
             main(render=False, train=False, pm_pert = pert, frict=frict, alg = 'PPO', model_to_load = f'Models/Walker_models/Ideal_models/Walker_model_colab', heatmap = True) # test RARL_PPO
             
+    '''
