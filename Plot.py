@@ -6,7 +6,7 @@ import numpy as np
 def plot_reward_vs_pert(csv_files,base_algs=('PPO', 'SAC'), rarl_algs=('RARL'),use_std=True,title='Walker2D', perturbation = ("Mass", "Friction")):
  
 
-    if base_algs[0] == 'PPO' and rarl_algs[0] == 'RARL_PPO':
+    if base_algs[0] == 'PPO' and rarl_algs[0] == 'RARL':
         label1 = "PPO"
         label2 = "RARL_PPO"
     elif base_algs[0] == 'SAC' and rarl_algs[0] == 'RARL_SAC':
@@ -19,6 +19,7 @@ def plot_reward_vs_pert(csv_files,base_algs=('PPO', 'SAC'), rarl_algs=('RARL'),u
 
     df_base = df[df['algorithm'].isin(base_algs)]
     df_rarl = df[df['algorithm'].isin(rarl_algs)]
+
     pert = perturbation[0]
 
 
@@ -134,17 +135,26 @@ def main(heatmap = False):
     
     if not heatmap:
     
-        pert = "Mass"  # or "Friction"
+        pert = "Friction"  # or "Friction"
         path = Path('./Files/Half_C/heatmap')
-        csvs = [p for p in path.glob('*.csv') if pert in p.name]
-
+        csvs_mass = [p for p in path.glob('*.csv') if (('Mass' in p.name) and not('Friction' in p.name)) or (not('Mass' in p.name) and not('Friction' in p.name))] #xor('Mass' in p.name, 'Friction' in p.name)
+        csvs_frict = [p for p in path.glob('*.csv') if (not('Mass' in p.name) and ('Friction' in p.name)) or (not('Mass' in p.name) and not('Friction' in p.name))]
+        
         plot_reward_vs_pert(
-            csv_files=csvs,
+            csv_files=csvs_mass,
             base_algs=("PPO",),
-            rarl_algs=("RARL_PPO",),
+            rarl_algs=("RARL",),
             use_std=True,  
             title='Walker2D',
-            perturbation = (pert,),
+            perturbation = ('Mass',),
+        )
+        plot_reward_vs_pert(
+            csv_files=csvs_frict,
+            base_algs=("PPO",),
+            rarl_algs=("RARL",),
+            use_std=True,  
+            title='Walker2D',
+            perturbation = ('Friction',),
         )
         
     else:
@@ -154,7 +164,9 @@ def main(heatmap = False):
 
         plot_reward_heatmaps_ppo_vs_rarl(alg = alg,base_path=BASE)
     
-    
+def xor(a, b):
+    return (a and not b) or (not a and b)
+
 if __name__ == '__main__':
 
-    main(heatmap=True)
+    main(heatmap=False)
