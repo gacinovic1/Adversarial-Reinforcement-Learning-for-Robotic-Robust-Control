@@ -10,6 +10,8 @@ import PPO_RARL as PPO
 import SAC_RARL
 import ENV_Wrapper
 
+import csv
+
 class HalfCetah_NN(nn.Module):
     def __init__(self, n_inputs = 17, n_outputs = 6) -> None:
         super().__init__()
@@ -81,22 +83,28 @@ class HalfCetah_env_pert(ENV_Wrapper.ENV_Adversarial_wrapper):
       state, info = self.env.reset()
       return self._postprocess_state(state), info
 
-def Test(RL, env, steps = 10_000):
+
+def Test(RL, env, steps = 10_000) -> tuple[float, int, int, list[float, int]]:
     s, _ = env.reset()
+    rew_list = [(0, 0)]
     reward = 0
-    attempts = 1
+    attempts = 0
     for i in range(steps):
+        env.update_running_stats = False 
         s, r, term, tronc, _ = env.step(RL.act(s))
         reward += r
-        if term or tronc:
+        if term or tronc: 
             s, _ = env.reset()
             attempts += 1
+            rew_list.append((reward - np.sum([r[0] for r in rew_list]), i+1 - np.sum([s[1] for s in rew_list])))
         if np.mod(i, 1000) == 0: print('#', end='', flush=True)
     env.close()
 
-    print(f'---> rewards: {reward/attempts} | gained in {attempts} attempts')
+    print(f'\n---> rewards: {reward/attempts} | gained in {attempts} attempts')
 
-def Perturbate_env(env, pert = 0):
+    return (reward, attempts, steps, rew_list[1:])
+
+def Perturbate_env(env, pert = 0, frict = 1.0):
     if pert == 0: return
     # must be perturbed the walker model
 
@@ -105,12 +113,18 @@ def Perturbate_env(env, pert = 0):
       print(f"Original {i} mass: {env.unwrapped.model.body_mass[i]}", end='')
       env.unwrapped.model.body_mass[i] += env.unwrapped.model.body_mass[i]*pert
       print(f" ---> New {i} mass: {env.unwrapped.model.body_mass[i]}")
+      new_mass = env.unwrapped.model.body_mass[i].sum()
 
+    model = env.unwrapped.model
+    floor_id = mujoco.mj_name2id(model,mujoco.mjtObj.mjOBJ_GEOM,"floor")
     print(f'original friction: {env.mj_model.geom_friction[env.ids['floor']]}', end='')
     env.mj_model.geom_friction[env.ids['floor']] = [0.01, 0.001, 0.001] # [sliding, torsional, rolling]
     print(f' ---> new friction: {env.mj_model.geom_friction[env.ids['floor']]}')
+    new_friction = model.geom_friction[floor_id][0]
 
-def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
+    return new_mass, new_friction
+
+def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, model_to_load = '', heatmap = False):
     # init environment and neural network
     env = HalfCetah_env_pert(
         env_name='HalfCheetah-v5',
@@ -144,14 +158,44 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
     if not render: return
 
     # perturbate the modle paramether
-    Perturbate_env(env, pm_pert)
+    new_mass, new_friction = Perturbate_env(env, pm_pert)
 
     # choise the algorithm for run the simulation
     RL = ppo if alg == 'PPO' else rarl_ppo
-    Test(RL, env, 10_000)
+    
+    list_for_file = []
+    for i in range(5):
+        rew, attempts, steps, rew_list = Test(RL, env, 3_000)
+        list_for_file.extend([{
+            'algorithm' : alg,
+            'Mass' : new_mass,
+            'Friction': new_friction,
+            'steps' : elem[1],
+            'reward' : elem[0],
+            'model' : RL.model_name
+            } for elem in rew_list])
+    token = model_to_load.split("/")[-1]
+
+    string_pert = '' + ('mass_' if pm_pert != 1 else '') + ('friction' if frict != 0 else '')
+
+    if not heatmap:
+        file = f'Files/Half_C/{alg}_{string_pert}{new_mass}_{new_friction}_{token}.csv'
+    else:
+        file = f'Files/Half_C/heatmap/{alg}_{string_pert}{new_mass}_{new_friction}_{token}_heatmap.csv'
+    
+    with open(file, 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=[k for k in list_for_file[0].keys()])
+        writer.writeheader()
+        writer.writerows(list_for_file)
 
 if __name__ == '__main__':
     #main(render=False, train=True, alg = 'PPO') # train with PPO
     #main(render=False, train=True, alg = 'RARL') # train with RARL
-    main(render=True, train=False, pm_pert = -0.1, alg = 'PPO') # test PPO
-    main(render=True, train=False, pm_pert = -0.1, alg = 'RARL') # test RARL
+    #main(render=True, train=False, pm_pert = -0.1, alg = 'PPO') # test PPO
+    #main(render=True, train=False, pm_pert = -0.1, alg = 'RARL') # test RARL
+
+    for path, alg in zip(['Ideal_models/HalfCeetah', 'Adversarial_models/HalfCeetah_adversarial'], ['PPO', 'RARL']):
+        for pert in [-0.9, -0.7, -0.5, -0.3, -0.1, 0.0,0.2, 0.5, 0.7, 0.9, 1]:
+            for frict in [0.0,0.1, 0.4, 0.8, 1.0, 1.3, 1.7, 2.0, 2.2, 2.5]:
+                main(render=True, train=False, pm_pert = pert, frict=frict, alg = alg, model_to_load = f'Models/HalfCitah_models/' + path, heatmap = True) # test RARL_PPO
+                
