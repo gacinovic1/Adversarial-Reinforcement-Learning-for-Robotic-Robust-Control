@@ -105,7 +105,7 @@ def Test(RL, env, steps = 10_000) -> tuple[float, int, int, list[float, int]]:
     return (reward, attempts, steps, rew_list[1:])
 
 def Perturbate_env(env, pert = 0, frict = 1.0):
-    if pert == 0: return
+    #if pert == 0: return
     # must be perturbed the walker model
 
     # modify pendolum mass
@@ -194,8 +194,8 @@ if __name__ == '__main__':
     #main(render=True, train=False, pm_pert = -0.1, alg = 'PPO') # test PPO
     #main(render=True, train=False, pm_pert = -0.1, alg = 'RARL') # test RARL
 
-    for path, alg in zip(['Adversarial_models/HalfCeetah_adversarial'], ['RARL']):
-        for pert in [-0.9, -0.7, -0.5, -0.3, -0.1, 0.0,0.2, 0.5, 0.7, 0.9, 1]:
+    for path, alg in zip(['Idela-models/HalfCheetah', 'Adversarial_models/HalfCeetah_adversarial'], ['PPO', 'RARL']):
+        for pert in [0.0 ,0.2, 0.5, 0.7, 0.9, 1]: # -0.9, -0.7, -0.5, -0.3, -0.1, 
             for frict in [0.0, 0.1, 0.4, 0.8, 1.0, 1.3, 1.7, 2.0, 2.2, 2.5]:
                 main(render=True, train=False, pm_pert = pert, frict=frict, alg = alg, model_to_load = f'Models/HalfCitah_models/' + path, heatmap = True) # test RARL_PPO
                 

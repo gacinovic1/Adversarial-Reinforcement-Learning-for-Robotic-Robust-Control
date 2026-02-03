@@ -98,7 +98,7 @@ def plot_reward_heatmaps_ppo_vs_rarl(alg, base_path,cmap='RdBu_r', save_path=Non
     base_path = Path(base_path)
     
     csvs_alg = [p for p in base_path.glob('*heatmap.csv') if alg in p.name and f'RARL_{alg}' not in p.name]
-    csvs_rarl = [p for p in base_path.glob('*heatmap.csv') if f'RARL_{alg}' in p.name]
+    csvs_rarl = [p for p in base_path.glob('*heatmap.csv') if f'RARL' in p.name]
 
     pivot_alg = build_heatmap_data(csvs_alg)
     pivot_rarl = build_heatmap_data(csvs_rarl)
@@ -135,7 +135,7 @@ def main(heatmap = False):
     if not heatmap:
     
         pert = "Mass"  # or "Friction"
-        path = Path('/home/gacinovic/adversarial_RL/Adversarial-Reinforcement-Learning-for-Robotic-Robust-Control/Files/Walker2D')
+        path = Path('./Files/Half_C/heatmap')
         csvs = [p for p in path.glob('*.csv') if pert in p.name]
 
         plot_reward_vs_pert(
@@ -149,7 +149,7 @@ def main(heatmap = False):
         
     else:
         
-        BASE = Path('/home/gacinovic/adversarial_RL/Adversarial-Reinforcement-Learning-for-Robotic-Robust-Control/Files/Walker2D/heatmap')
+        BASE = Path('./Files/Half_C/heatmap')
         alg = "PPO"  #  or "SAC" 
 
         plot_reward_heatmaps_ppo_vs_rarl(alg = alg,base_path=BASE)
@@ -157,4 +157,4 @@ def main(heatmap = False):
     
 if __name__ == '__main__':
 
-    main(heatmap=False)
+    main(heatmap=True)
