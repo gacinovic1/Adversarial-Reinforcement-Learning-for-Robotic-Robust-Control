@@ -60,46 +60,73 @@ def plot_reward_vs_pert(csv_files,base_algs=('PPO', 'SAC'), rarl_algs=('RARL'),u
     plt.close()
     
 
-def plot_reward_heatmap(csv_files,title='RARL_PPO',save_path=None,cmap='RdBu_r'):
-
-
+def build_heatmap_data(csv_files):
     records = []
 
     for f in csv_files:
         
         df = pd.read_csv(f)
-        mass = df['Mass'].iloc[0]
-        friction = df['Friction'].iloc[0]
-        reward_mean = df['reward'].mean()
-
-        records.append({'Mass': mass,'Friction': friction,'Reward': reward_mean})
+        records.append({'Mass': df['Mass'].iloc[0], 'Friction': df['Friction'].iloc[0], 'Reward': df['reward'].mean()})
 
     data = pd.DataFrame(records)
 
-    pivot = data.pivot(index='Mass', columns='Friction',values='Reward')
-
-   
+    pivot = data.pivot_table(index='Mass', columns='Friction', values='Reward', aggfunc='mean')
     pivot = pivot.sort_index(ascending=False)
     pivot = pivot.sort_index(axis=1)
 
-    plt.figure(figsize=(6, 5))
+    return pivot
 
-    im = plt.imshow(pivot.values,aspect='auto',cmap=cmap,interpolation='nearest')
+def draw_heatmap(ax, pivot, title, cmap, vmin, vmax):
+    
+    im = ax.imshow(pivot.values, aspect='auto', cmap=cmap, interpolation='nearest', vmin=vmin, vmax=vmax) 
 
-    plt.colorbar(im, label='Reward')
-    plt.xticks(ticks=np.arange(len(pivot.columns)),labels=[f'{v:.2f}' for v in pivot.columns])
-    plt.yticks(ticks=np.arange(len(pivot.index)),labels=[f'{v:.1f}' for v in pivot.index])
-    plt.xlabel('Friction coefficient')
-    plt.ylabel('Mass of torso')
-    plt.title(title)
+    ax.set_xticks(np.arange(len(pivot.columns)))
+    ax.set_xticklabels([f'{v:.2f}' for v in pivot.columns])
 
-    plt.tight_layout()
+    ax.set_yticks(np.arange(len(pivot.index)))
+    ax.set_yticklabels([f'{v:.1f}' for v in pivot.index])
+
+    ax.set_xlabel('Friction coefficient')
+    ax.set_ylabel('Mass of torso')
+    ax.set_title(title)
+
+    return im
+
+
+def plot_reward_heatmaps_ppo_vs_rarl(alg, base_path,cmap='RdBu_r', save_path=None):
+    
+    base_path = Path(base_path)
+    
+    csvs_alg = [p for p in base_path.glob('*heatmap.csv') if alg in p.name and f'RARL_{alg}' not in p.name]
+    csvs_rarl = [p for p in base_path.glob('*heatmap.csv') if f'RARL_{alg}' in p.name]
+
+    pivot_alg = build_heatmap_data(csvs_alg)
+    pivot_rarl = build_heatmap_data(csvs_rarl)
+
+    vmin = min(pivot_alg.min().min(), pivot_rarl.min().min())
+    vmax = max(pivot_alg.max().max(), pivot_rarl.max().max())
+
+    fig = plt.figure(figsize=(14, 7))
+
+    gs = fig.add_gridspec(2, 2,height_ratios=[20, 1], hspace=0.3, wspace=0.15)
+
+    ax1 = fig.add_subplot(gs[0, 0])
+    ax2 = fig.add_subplot(gs[0, 1])
+    cax = fig.add_subplot(gs[1, :])  
+
+    im1 = draw_heatmap(ax1, pivot_alg, alg, cmap, vmin, vmax)
+    im2 = draw_heatmap(ax2, pivot_rarl, f'RARL_{alg}', cmap, vmin, vmax)
+
+    cbar = fig.colorbar(im1, cax=cax, orientation='horizontal')
+    cbar.set_label('Reward')
+
+   # plt.tight_layout()
 
     if save_path:
         plt.savefig(save_path, dpi=300)
         plt.close()
     else:
-        plt.savefig(f'{title}_reward_vs_both.png', dpi=300)
+        plt.savefig(f'{alg}_vs_RARL_{alg}_heatmaps.png', dpi=300)
         plt.close()
     
     
@@ -121,16 +148,10 @@ def main(heatmap = False):
     else:
         
         BASE = Path('/home/gacinovic/adversarial_RL/Adversarial-Reinforcement-Learning-for-Robotic-Robust-Control/Files/Walker2D/heatmap')
-        required = ['Walker_model_colab']
-        csvs = [p for p in BASE.glob('*heatmap.csv')if all(k in p.name for k in required)]
-        
-        #csvs = Path('/home/gacinovic/adversarial_RL/Adversarial-Reinforcement-Learning-for-Robotic-Robust-Control/Files/Walker2D/heatmap').glob('*heatmap.csv')
+        alg = "PPO"  #  or "SAC" 
 
-        plot_reward_heatmap(
-            csv_files=csvs,
-            title='PPO'
-            #save_path='Plots/rarl_mass_friction_heatmap.png'
-        )
+        plot_reward_heatmaps_ppo_vs_rarl(alg = alg,base_path=BASE)
+    
     
 if __name__ == '__main__':
 
