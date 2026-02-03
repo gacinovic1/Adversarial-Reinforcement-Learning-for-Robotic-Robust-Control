@@ -134,15 +134,17 @@ def main(heatmap = False):
     
     if not heatmap:
     
-        csvs = Path('/home/gacinovic/adversarial_RL/Adversarial-Reinforcement-Learning-for-Robotic-Robust-Control/Files/Walker2D').glob('*.csv')
+        pert = "Mass"  # or "Friction"
+        path = Path('/home/gacinovic/adversarial_RL/Adversarial-Reinforcement-Learning-for-Robotic-Robust-Control/Files/Walker2D')
+        csvs = [p for p in path.glob('*.csv') if pert in p.name]
 
         plot_reward_vs_pert(
             csv_files=csvs,
             base_algs=("PPO",),
             rarl_algs=("RARL_PPO",),
-            use_std=False,  
+            use_std=True,  
             title='Walker2D',
-            perturbation = ('Friction',),
+            perturbation = (pert,),
         )
         
     else:
@@ -155,4 +157,4 @@ def main(heatmap = False):
     
 if __name__ == '__main__':
 
-    main(heatmap=True)
+    main(heatmap=False)
