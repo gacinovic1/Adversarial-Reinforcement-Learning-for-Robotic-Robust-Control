@@ -1,0 +1,16 @@
+algorithm,Mass,Friction,steps,reward,model
+RARL,1.0066527196652721,0.8800000000000001,1000,1211.536448355524,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,1.0066527196652721,0.8800000000000001,1000,821.8235782459751,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,1.0066527196652721,0.8800000000000001,1000,516.7705633808205,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,1.0066527196652721,0.8800000000000001,1000,863.9529767943319,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,1.0066527196652721,0.8800000000000001,1000,1389.2551714754463,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,1.0066527196652721,0.8800000000000001,1000,630.6457953957706,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,1.0066527196652721,0.8800000000000001,1000,-92.24853190663666,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,1.0066527196652721,0.8800000000000001,1000,139.4410721238208,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,1.0066527196652721,0.8800000000000001,1000,793.9926221560485,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,1.0066527196652721,0.8800000000000001,1000,-244.59450857303545,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,1.0066527196652721,0.8800000000000001,1000,1102.0498690788902,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,1.0066527196652721,0.8800000000000001,1000,-347.91985164546014,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,1.0066527196652721,0.8800000000000001,1000,-730.1111393116121,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,1.0066527196652721,0.8800000000000001,1000,338.56611008284403,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,1.0066527196652721,0.8800000000000001,1000,-348.35299781489834,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial

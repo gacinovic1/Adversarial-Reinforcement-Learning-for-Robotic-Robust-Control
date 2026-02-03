@@ -1,0 +1,16 @@
+algorithm,Mass,Friction,steps,reward,model
+RARL,0.1438075313807532,0.0,1000,-254.50837558356915,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,0.1438075313807532,0.0,1000,-85.65350398722649,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,0.1438075313807532,0.0,1000,-410.6177207953663,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,0.1438075313807532,0.0,1000,-237.83708196228736,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,0.1438075313807532,0.0,1000,-195.94057869713083,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,0.1438075313807532,0.0,1000,-582.0427774404648,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,0.1438075313807532,0.0,1000,-315.77290729029363,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,0.1438075313807532,0.0,1000,-352.6226599700961,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,0.1438075313807532,0.0,1000,-178.04967298670545,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,0.1438075313807532,0.0,1000,-572.8117353358583,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,0.1438075313807532,0.0,1000,-291.98047612873984,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,0.1438075313807532,0.0,1000,-418.3732661799053,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,0.1438075313807532,0.0,1000,-358.242207100516,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,0.1438075313807532,0.0,1000,-151.3499956651156,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial
+RARL,0.1438075313807532,0.0,1000,-265.4657326498745,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial

@@ -158,7 +158,7 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, m
     if not render: return
 
     # perturbate the modle paramether
-    new_mass, new_friction = Perturbate_env(env if alg == 'PPO' else env.env, pm_pert, frict)
+    new_mass, new_friction = Perturbate_env(env, pm_pert, frict)
 
     # choise the algorithm for run the simulation
     RL = ppo if alg == 'PPO' else rarl_ppo
@@ -179,9 +179,9 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, m
     perturbation = '' + ('Mass_' if pm_pert != 0.0 else '') + ('Friction_' if frict != 1.0 else '')
 
     if not heatmap:
-        file = f'Files/Half_C/{alg}_{perturbation}{new_mass}_{new_friction}_{token}.csv'
+        file = f'Files/Half_C/{alg}_{perturbation}{new_mass:0.4f}_{new_friction:0.4f}_{token}.csv'
     else:
-        file = f'Files/Half_C/heatmap/{alg}_{perturbation}{new_mass}_{new_friction}_{token}_heatmap.csv'
+        file = f'Files/Half_C/heatmap/{alg}_{perturbation}{new_mass:0.4f}_{new_friction:0.4f}_{token}_heatmap.csv'
     
     with open(file, 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=[k for k in list_for_file[0].keys()])
