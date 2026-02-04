@@ -118,7 +118,8 @@ def Perturbate_env(env, pert = 0, frict = 1.0):
     model = env.unwrapped.model
     floor_id = mujoco.mj_name2id(model,mujoco.mjtObj.mjOBJ_GEOM,"floor")
     print(f'original friction: {env.mj_model.geom_friction[env.ids['floor']]}', end='')
-    model.geom_friction[floor_id] = model.geom_friction[floor_id][0] * frict # sliding # [sliding, torsional, rolling]
+    for i in range(3):
+        model.geom_friction[floor_id][i] = model.geom_friction[floor_id][i] * frict # sliding # [sliding, torsional, rolling]
     print(f' ---> new friction: {env.mj_model.geom_friction[env.ids['floor']]}')
     new_friction = model.geom_friction[floor_id][0]
 
@@ -195,7 +196,7 @@ if __name__ == '__main__':
     #main(render=True, train=False, pm_pert = -0.1, alg = 'RARL') # test RARL
 
     for path, alg in zip(['Idela-models/HalfCheetah', 'Adversarial_models/HalfCeetah_adversarial'], ['PPO', 'RARL']):
-        for pert in [0.0 ,0.2, 0.5, 0.7, 0.9, 1]: # -0.9, -0.7, -0.5, -0.3, -0.1, 
+        for pert in [-0.9, -0.7, -0.5, -0.3, -0.1, 0.0 ,0.2, 0.5, 0.7, 0.9, 1]: #  
             for frict in [0.0, 0.1, 0.4, 0.8, 1.0, 1.3, 1.7, 2.0, 2.2, 2.5]:
                 main(render=True, train=False, pm_pert = pert, frict=frict, alg = alg, model_to_load = f'Models/HalfCitah_models/' + path, heatmap = True) # test RARL_PPO
                 
