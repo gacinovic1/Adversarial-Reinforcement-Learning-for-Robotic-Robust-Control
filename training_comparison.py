@@ -155,7 +155,6 @@ def run_comparison(alg_base: str,alg_rarl: str,environment: str,n_seeds: int = 1
         
         rewards = np.array(rewards)
 
-        # sicurezza: tronco/padding se serve
         if len(rewards) < episodes:
             rewards = np.pad(rewards, (0, episodes - len(rewards)), mode='edge')
         else:
@@ -164,7 +163,6 @@ def run_comparison(alg_base: str,alg_rarl: str,environment: str,n_seeds: int = 1
         rewards_base[seed] = rewards
 
 
-        # ================= RARL =================
         if alg_rarl == 'RARL_PPO':
             player = net.Walker_NN_PPO()
             opponent = net.Walker_NN_PPO(n_outputs=4)
@@ -272,12 +270,10 @@ def run_comparison(alg_base: str,alg_rarl: str,environment: str,n_seeds: int = 1
     plt.figure(figsize=(7, 5))
 
     plt.plot(x, base_mean, color='green', label=alg_base)
-    plt.fill_between(x, base_mean - base_std, base_mean + base_std,
-                     color='green', alpha=0.3)
+    plt.fill_between(x, base_mean - base_std, base_mean + base_std,color='green', alpha=0.3)
 
     plt.plot(x, rarl_mean, color='blue', label=alg_rarl)
-    plt.fill_between(x, rarl_mean - rarl_std, rarl_mean + rarl_std,
-                     color='blue', alpha=0.3)
+    plt.fill_between(x, rarl_mean - rarl_std, rarl_mean + rarl_std,color='blue', alpha=0.3)
 
     plt.xlabel('Episodes')
     plt.ylabel('Reward')
@@ -292,7 +288,7 @@ def run_comparison(alg_base: str,alg_rarl: str,environment: str,n_seeds: int = 1
 
 def main():
     
-    run_comparison(alg_base='PPO',alg_rarl='RARL_PPO',environment='Walker2d', n_seeds=5,episodes=500)    
+    run_comparison(alg_base='PPO',alg_rarl='RARL_PPO',environment='Walker2d', n_seeds=3,episodes=200)    
     
 if __name__ == '__main__':
 
