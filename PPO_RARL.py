@@ -203,7 +203,8 @@ class PPO():
 
     # method for train the agent
     def train(self, episodes = 1024, epoch = 10, mini_bach = 128, max_steps_rollouts = 1024, continue_prev_train = False, brake_after_done = False) -> None:
-
+        
+        rewards_ = []
         if(continue_prev_train):
             self.load()
 
@@ -241,8 +242,9 @@ class PPO():
 
             print(f" | {tranchs} | mean rewards: {mean_rew/tranchs}")
             if self.print_flag: print(f"[T]: end roll-outs {episode} ")
-
-
+            
+            rewards_.append(mean_rew/tranchs)
+    
 
             # starting the iteration of PPO
             if self.print_flag: print("[T]: starting PPO iterations")
@@ -254,7 +256,8 @@ class PPO():
 
         self.state_queue = []
         self.save()
-        return
+        
+        return rewards_
 
 
     def save(self) -> None:
@@ -531,6 +534,7 @@ class RARL_PPO():
     # method for train the agent
     def train(self, player_episode = 2, opponent_episode = 1, episodes = 1024, epoch = 10, mini_bach = 128, max_steps_rollouts = 1024, continue_prev_train = False, brake_after_done = False) -> None:
 
+        rewards = []
         if(continue_prev_train):
             self.load()
 
@@ -582,6 +586,9 @@ class RARL_PPO():
                 if brake_after_done: break
 
             print(f" | {tranchs} | mean rewards: {mean_rew/tranchs}")
+            
+            rewards.append(mean_rew/tranchs)
+            
             if self.print_flag: print(f"{current_actor_dict['icon']}: end roll-outs {episode} ")
 
             # starting the iteration of PPO for the current actor
@@ -604,7 +611,7 @@ class RARL_PPO():
 
         self.state_queue = []
         self.save()
-        return
+        return rewards
 
     def save(self) -> None:
         checkpoint = {
