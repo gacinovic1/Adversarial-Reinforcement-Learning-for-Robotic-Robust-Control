@@ -117,20 +117,20 @@ def main(render = True, train = False, alg = 'PPO', pm_pert = 0):
     if alg in ['PPO', 'SAC'] or (alg in ['RARL_PPO', 'RARL_SAC'] and not train):
         
         env = ENV_Wrapper.ENV_wrapper(
-        env_name='HalfCheetah-v5',
-        act_min=-1.0,
-        act_max=1.0,
-        render_mode=render_mode if render else None,
-        is_norm_wrapper=True, algorithm= alg)
+            env_name='HalfCheetah-v5',
+            act_min=-1.0,
+            act_max=1.0,
+            render_mode=render_mode if render else None,
+            is_norm_wrapper=True, algorithm= alg)
         
     else:
 
         env = HalfCheetah_env_pert(
-        env_name='HalfCheetah-v5',
-        action_range=[-1.0, 1.0],
-        adv_action_range=[-0.01, 0.01],
-        render_mode=render_mode if render else None,
-        is_norm_wrapper=True, algorithm= alg)
+            env_name='HalfCheetah-v5',
+            action_range=[-1.0, 1.0],
+            adv_action_range=[-0.01, 0.01],
+            render_mode=render_mode if render else None,
+            is_norm_wrapper=True, algorithm= alg)
 
     # init the PPO or RARL_PPO algorithm
     if alg == 'RARL_PPO':

@@ -6,7 +6,7 @@ import numpy as np
 def plot_reward_vs_pert(csv_files,base_algs=('PPO', 'SAC'), rarl_algs=('RARL'),use_std=True,title='Walker2D', perturbation = ("Mass", "Friction")):
  
 
-    if base_algs[0] == 'PPO' and rarl_algs[0] == 'RARL':
+    if base_algs[0] == 'PPO' and (rarl_algs[0] == 'RARL' or rarl_algs[0] == 'RARL_PPO'):
         label1 = "PPO"
         label2 = "RARL_PPO"
     elif base_algs[0] == 'SAC' and rarl_algs[0] == 'RARL_SAC':
@@ -136,14 +136,16 @@ def main(heatmap = False):
     if not heatmap:
     
         pert = "Friction"  # or "Friction"
-        path = Path('./Files/Half_C/heatmap')
-        csvs_mass = [p for p in path.glob('*.csv') if (('Mass' in p.name) and not('Friction' in p.name)) or (not('Mass' in p.name) and not('Friction' in p.name))] #xor('Mass' in p.name, 'Friction' in p.name)
+        path = Path('./Files/Hopper/heatmap')
+        csvs_mass = [p for p in path.glob('*.csv') if (('Mass' in p.name) and not('Friction' in p.name)) or (not('Mass' in p.name) and not('Friction' in p.name))] 
         csvs_frict = [p for p in path.glob('*.csv') if (not('Mass' in p.name) and ('Friction' in p.name)) or (not('Mass' in p.name) and not('Friction' in p.name))]
+
+        #csvs_both  = [p for p in path.glob('*.csv') if xor('Mass' in p.name, 'Friction' in p.name) or (not('Mass' in p.name) and not('Friction' in p.name))]
         
         plot_reward_vs_pert(
             csv_files=csvs_mass,
             base_algs=("PPO",),
-            rarl_algs=("RARL",),
+            rarl_algs=("RARL_PPO",),
             use_std=True,  
             title='Walker2D',
             perturbation = ('Mass',),
@@ -151,7 +153,7 @@ def main(heatmap = False):
         plot_reward_vs_pert(
             csv_files=csvs_frict,
             base_algs=("PPO",),
-            rarl_algs=("RARL",),
+            rarl_algs=("RARL_PPO",),
             use_std=True,  
             title='Walker2D',
             perturbation = ('Friction',),
@@ -159,7 +161,7 @@ def main(heatmap = False):
         
     else:
         
-        BASE = Path('./Files/Half_C/heatmap')
+        BASE = Path('./Files/Hopper/heatmap')
         alg = "PPO"  #  or "SAC" 
 
         plot_reward_heatmaps_ppo_vs_rarl(alg = alg,base_path=BASE)

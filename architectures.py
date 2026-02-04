@@ -147,3 +147,33 @@ class HalfCheetah_NN(nn.Module):
         beta  = self.beta_head(x)  + 1
 
         return alpha, beta, V
+    
+class Hopper_NN_PPO(nn.Module):
+    def __init__(self, n_inputs = 17, n_outputs = 6) -> None:
+        super().__init__()
+
+        self.backbone = nn.Sequential(
+            nn.Linear(n_inputs, 64) , nn.ReLU(),
+            )
+
+        self.actor_FC = nn.Sequential(
+            nn.Linear(64, 64) , nn.ReLU(),
+        )
+
+        self.alpha_head = nn.Sequential(nn.Linear(64, n_outputs), nn.Softplus())
+        self.beta_head  = nn.Sequential(nn.Linear(64, n_outputs), nn.Softplus())
+
+        self.critic = nn.Sequential(
+            nn.Linear(64, 32), nn.ReLU(),
+            nn.Linear(32, 1)
+        )
+
+    def forward(self, x):
+        x = self.backbone(x)
+        V = self.critic(x)
+
+        x = self.actor_FC(x)
+        alpha = self.alpha_head(x) + 1
+        beta  = self.beta_head(x)  + 1
+
+        return alpha, beta, V

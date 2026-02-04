@@ -1,0 +1,16 @@
+algorithm,Mass,Friction,steps,reward,model
+PPO,3.6651914291880923,1.0,318,937.6935896257378,Models/Hopper/Ideal_models/Hopper_model_PPO
+PPO,3.6651914291880923,1.0,486,1391.304121801366,Models/Hopper/Ideal_models/Hopper_model_PPO
+PPO,3.6651914291880923,1.0,191,514.6371828802871,Models/Hopper/Ideal_models/Hopper_model_PPO
+PPO,3.6651914291880923,1.0,321,945.5066975914224,Models/Hopper/Ideal_models/Hopper_model_PPO
+PPO,3.6651914291880923,1.0,418,1179.8279048071854,Models/Hopper/Ideal_models/Hopper_model_PPO
+PPO,3.6651914291880923,1.0,237,683.8248284448018,Models/Hopper/Ideal_models/Hopper_model_PPO
+PPO,3.6651914291880923,1.0,483,1435.7231764747887,Models/Hopper/Ideal_models/Hopper_model_PPO
+PPO,3.6651914291880923,1.0,196,533.2284650931326,Models/Hopper/Ideal_models/Hopper_model_PPO
+PPO,3.6651914291880923,1.0,309,960.901931872188,Models/Hopper/Ideal_models/Hopper_model_PPO
+PPO,3.6651914291880923,1.0,334,985.3049652217924,Models/Hopper/Ideal_models/Hopper_model_PPO
+PPO,3.6651914291880923,1.0,487,1392.2744542062992,Models/Hopper/Ideal_models/Hopper_model_PPO
+PPO,3.6651914291880923,1.0,347,1047.815062834474,Models/Hopper/Ideal_models/Hopper_model_PPO
+PPO,3.6651914291880923,1.0,803,2399.4671759307394,Models/Hopper/Ideal_models/Hopper_model_PPO
+PPO,3.6651914291880923,1.0,312,871.8824306021943,Models/Hopper/Ideal_models/Hopper_model_PPO
+PPO,3.6651914291880923,1.0,397,1183.5677818210406,Models/Hopper/Ideal_models/Hopper_model_PPO

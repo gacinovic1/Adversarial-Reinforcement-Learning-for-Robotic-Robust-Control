@@ -1,0 +1,12 @@
+algorithm,Mass,Friction,steps,reward,model
+PPO,2.5656340004316647,1.0,746,2330.80818084677,Models/Hopper/Ideal_models/Hopper_model_PPO
+PPO,2.5656340004316647,1.0,913,2654.7016665172637,Models/Hopper/Ideal_models/Hopper_model_PPO
+PPO,2.5656340004316647,1.0,469,1428.8726794075899,Models/Hopper/Ideal_models/Hopper_model_PPO
+PPO,2.5656340004316647,1.0,397,1227.6424993360636,Models/Hopper/Ideal_models/Hopper_model_PPO
+PPO,2.5656340004316647,1.0,482,1503.1964714687938,Models/Hopper/Ideal_models/Hopper_model_PPO
+PPO,2.5656340004316647,1.0,380,1117.520403889811,Models/Hopper/Ideal_models/Hopper_model_PPO
+PPO,2.5656340004316647,1.0,312,944.3771797100607,Models/Hopper/Ideal_models/Hopper_model_PPO
+PPO,2.5656340004316647,1.0,336,940.0258018813264,Models/Hopper/Ideal_models/Hopper_model_PPO
+PPO,2.5656340004316647,1.0,443,1289.9003600829012,Models/Hopper/Ideal_models/Hopper_model_PPO
+PPO,2.5656340004316647,1.0,387,1211.189355551508,Models/Hopper/Ideal_models/Hopper_model_PPO
+PPO,2.5656340004316647,1.0,251,725.528356142785,Models/Hopper/Ideal_models/Hopper_model_PPO

@@ -32,6 +32,11 @@ class ENV_wrapper(gym.Wrapper):
         self.act_diff = act_max - act_min
         self.act_min = act_min
 
+        self.mj_model, self.mj_data = self.env.unwrapped.model, self.env.unwrapped.data
+
+        self.ids = {}
+        self.ids['floor'] = self.mj_model.geom("floor").id
+
     def _preprocess_action(self, action) -> float:
         
         if self.algorithm == 'PPO' or self.algorithm == 'RARL_PPO':
