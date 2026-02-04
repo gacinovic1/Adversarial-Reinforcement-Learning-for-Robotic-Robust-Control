@@ -227,6 +227,8 @@ class SAC():
     # method for training the agent
     def train(self, episodes = 1024, epoch = 4, mini_batch = 128, max_steps_rollouts = 1024, continue_prev_train = False) -> None:
 
+        rewards = []
+        
         if(continue_prev_train):
             self.load()
 
@@ -294,13 +296,13 @@ class SAC():
                     continue
                 
             print(f"[T]: end episode {episode} windows: | {window} | tranches: {tranches} | mean rewards: {mean_rew/tranches} ")
-                
+            rewards.append(mean_rew/tranches) 
             
             if(np.mod(episode, self.save_interval) == 0):
                 self.save()    
             
         self.save()
-        return
+        return rewards
 
 
     def save(self) -> None:
@@ -565,6 +567,8 @@ class RARL_SAC():
     # method for train the agent
     def train(self, player_episode = 2, opponent_episode = 1, episodes = 1024, epoch = 10, mini_batch = 128, max_steps_rollouts = 1024, continue_prev_train = False, brake_after_done = False) -> None:
 
+        rewards = []
+        
         if(continue_prev_train):
             self.load()
 
@@ -654,6 +658,11 @@ class RARL_SAC():
                     continue
                 
             print(f"[T]: end episode {episode} windows: | {window} | mean rewards: {mean_rew/tranches}")
+            
+            if current_actor_dict['actor'] == self.opponent:
+               rewards.append(-mean_rew/tranches)
+            else:
+                rewards.append(mean_rew/tranches)
                 
             if(np.mod(episode, self.save_interval) == 0):
                 self.save()
@@ -661,7 +670,7 @@ class RARL_SAC():
             current_actor_dict['episode_count'] += 1    
             
         self.save()
-        return
+        return rewards
 
 
     def save(self) -> None:
