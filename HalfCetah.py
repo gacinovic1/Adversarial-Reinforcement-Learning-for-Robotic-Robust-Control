@@ -113,12 +113,12 @@ def Perturbate_env(env, pert = 0, frict = 1.0):
       print(f"Original {i} mass: {env.unwrapped.model.body_mass[i]}", end='')
       env.unwrapped.model.body_mass[i] += env.unwrapped.model.body_mass[i]*pert
       print(f" ---> New {i} mass: {env.unwrapped.model.body_mass[i]}")
-    new_mass = sum(env.unwrapped.model.body_mass[i])
+      new_mass = env.unwrapped.model.body_mass[i].sum()
 
     model = env.unwrapped.model
     floor_id = mujoco.mj_name2id(model,mujoco.mjtObj.mjOBJ_GEOM,"floor")
     print(f'original friction: {env.mj_model.geom_friction[env.ids['floor']]}', end='')
-    for i in range(3):
+    for i in range(1):
         model.geom_friction[floor_id][i] = model.geom_friction[floor_id][i] * frict # sliding # [sliding, torsional, rolling]
     print(f' ---> new friction: {env.mj_model.geom_friction[env.ids['floor']]}')
     new_friction = sum(model.geom_friction[floor_id])
@@ -140,13 +140,13 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, m
 
     # init the PPO or RARL_PPO algorithm
     if alg == 'RARL':
-        rarl_ppo = PPO.RARL_PPO(player, opponent, env, print_flag=False, lr_player=1e-4, name='Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial')
+        rarl_ppo = PPO.RARL_PPO(player, opponent, env, print_flag=False, lr_player=1e-3, name='Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial_2')
         if train: rarl_ppo.train(player_episode=10,
                              opponent_episode=4,
-                             episodes=650,
+                             episodes=700,
                              mini_bach=128,
                              max_steps_rollouts=2048,
-                             continue_prev_train=True)
+                             continue_prev_train=False)
         rarl_ppo.load()
     elif alg == 'PPO':
         ppo = PPO.PPO(player, env, print_flag=False, lr=1e-4, name='Models/HalfCitah_models/Ideal_models/HalfCheetah')
@@ -195,7 +195,7 @@ if __name__ == '__main__':
     #main(render=True, train=False, pm_pert = -0.1, alg = 'PPO') # test PPO
     #main(render=True, train=False, pm_pert = -0.1, alg = 'RARL') # test RARL
 
-    for path, alg in zip(['Idela-models/HalfCheetah', 'Adversarial_models/HalfCeetah_adversarial'], ['PPO', 'RARL']):
+    for path, alg in zip(['Idela-models/HalfCheetah', 'Adversarial_models/HalfCeetah_adversarial_2'], ['PPO', 'RARL']):
         for pert in [-0.9, -0.7, -0.5, -0.3, -0.1, 0.0 ,0.2, 0.5, 0.7, 0.9, 1]: #  
             for frict in [0.0, 0.1, 0.4, 0.8, 1.0, 1.3, 1.7, 2.0, 2.2, 2.5]:
                 main(render=True, train=False, pm_pert = pert, frict=frict, alg = alg, model_to_load = f'Models/HalfCitah_models/' + path, heatmap = True) # test RARL_PPO

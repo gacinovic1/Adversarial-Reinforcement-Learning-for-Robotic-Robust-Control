@@ -1,0 +1,16 @@
+algorithm,Mass,Friction,steps,reward,model
+RARL,0.7937238493723848,1.2000000000000002,1000,-89.09261001632728,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial_2
+RARL,0.7937238493723848,1.2000000000000002,1000,84.50157949263735,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial_2
+RARL,0.7937238493723848,1.2000000000000002,1000,-137.09839718057475,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial_2
+RARL,0.7937238493723848,1.2000000000000002,1000,225.77309813063238,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial_2
+RARL,0.7937238493723848,1.2000000000000002,1000,-151.43584597931914,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial_2
+RARL,0.7937238493723848,1.2000000000000002,1000,35.06909607629409,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial_2
+RARL,0.7937238493723848,1.2000000000000002,1000,153.54117398657107,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial_2
+RARL,0.7937238493723848,1.2000000000000002,1000,268.88767337720105,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial_2
+RARL,0.7937238493723848,1.2000000000000002,1000,109.85718569225833,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial_2
+RARL,0.7937238493723848,1.2000000000000002,1000,150.01026038848622,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial_2
+RARL,0.7937238493723848,1.2000000000000002,1000,-102.94274302571836,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial_2
+RARL,0.7937238493723848,1.2000000000000002,1000,105.46263412037953,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial_2
+RARL,0.7937238493723848,1.2000000000000002,1000,266.9690550878845,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial_2
+RARL,0.7937238493723848,1.2000000000000002,1000,553.2416756847282,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial_2
+RARL,0.7937238493723848,1.2000000000000002,1000,-33.69074032445383,Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial_2

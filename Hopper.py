@@ -191,8 +191,8 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0.0, frict = 1.0,
     RL = ppo if alg == 'PPO' else rarl_ppo
     
     list_for_file = []
-    for i in range(3):
-        rew, attempts, steps, rew_list = Test(RL, env, 2_000)
+    for i in range(4):
+        rew, attempts, steps, rew_list = Test(RL, env, 3_000)
         list_for_file.extend([{
             'algorithm' : alg,
             'Mass' : new_mass,
@@ -206,9 +206,9 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0.0, frict = 1.0,
     perturbation = '' + ('Mass_' if pm_pert != 0.0 else '') + ('Friction_' if frict != 1.0 else '')
 
     if not heatmap:
-        file = f'Files/Hopper_3/{alg}_{perturbation}{new_mass:0.4f}_{new_friction:0.4f}_{token}.csv'
+        file = f'Files/Hopper_2/{alg}_{perturbation}{new_mass:0.4f}_{new_friction:0.4f}_{token}.csv'
     else:
-        file = f'Files/Hopper_3/heatmap/{alg}_{perturbation}{new_mass:0.4f}_{new_friction:0.4f}_{token}_heatmap.csv'
+        file = f'Files/Hopper_2/heatmap/{alg}_{perturbation}{new_mass:0.4f}_{new_friction:0.4f}_{token}_heatmap.csv'
     
     with open(file, 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=[k for k in list_for_file[0].keys()])
@@ -217,16 +217,16 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0.0, frict = 1.0,
 
 if __name__ == '__main__':
     #main(render=False, train=True, alg = 'PPO') # train with PPO
-    main(render=False, train=True, alg = 'RARL_PPO') # train with RARL
+    #main(render=False, train=True, alg = 'RARL_PPO') # train with RARL
     #main(render=True, train=False, pm_pert = 0, alg = 'PPO') # test PPO
     #main(render=True, train=False, pm_pert = 0.0, alg = 'RARL_PPO') # test RARL PPO
     #main(render=False, train=True, pm_pert = 1, alg = 'RARL_SAC') # test SAC
   #  main(render=False, train=True, pm_pert = 1, alg = 'RARL_SAC') # test RARL SAC
  
     
-    for path, alg in zip(['Adversarial_models/Hopper_Adversarial_PPO_2'], ['RARL_PPO']): #zip(['Adversarial_models/Hopper_Adversarial_PPO_2'], ['RARL_PPO']): # zip(['Idela-models/Hopper_PPO_2'], ['PPO'])
-        for pert in [-0.9, -0.5, -0.3, 0.0 ,0.2, 0.7, 0.9]: #  
-            for frict in [0.0, 0.4, 0.8, 1.0, 1.3, 1.7, 2.2, 2.5]:
+    for path, alg in zip(['Idela-models/Hopper_PPO_2', 'Adversarial_models/Hopper_Adversarial_PPO_2'], ['PPO', 'RARL_PPO']): #zip(['Adversarial_models/Hopper_Adversarial_PPO_2'], ['RARL_PPO']): # zip(['Idela-models/Hopper_PPO_2'], ['PPO'])
+        for pert in [-0.9, -0.7, -0.5, -0.3, -0.1, 0.0 ,0.2, 0.5, 0.7, 0.9, 1]: #  
+            for frict in [0.0, 0.1, 0.4, 0.8, 1.0, 1.3, 1.7, 2.0, 2.2, 2.5]:
                 main(render=True, train=False, pm_pert = pert, frict=frict, alg = alg, model_to_load = f'Models/Hopper/' + path, heatmap = True) # test RARL_PPO
     
 

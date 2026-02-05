@@ -1,0 +1,16 @@
+algorithm,Mass,Friction,steps,reward,model
+PPO,1.5874476987447697,0.36,1000,2202.374499257378,Models/HalfCitah_models/Ideal_models/HalfCheetah
+PPO,1.5874476987447697,0.36,1000,2164.6081630511876,Models/HalfCitah_models/Ideal_models/HalfCheetah
+PPO,1.5874476987447697,0.36,1000,2276.6443012894188,Models/HalfCitah_models/Ideal_models/HalfCheetah
+PPO,1.5874476987447697,0.36,1000,3144.2945775291682,Models/HalfCitah_models/Ideal_models/HalfCheetah
+PPO,1.5874476987447697,0.36,1000,2813.685931489541,Models/HalfCitah_models/Ideal_models/HalfCheetah
+PPO,1.5874476987447697,0.36,1000,709.7865466932399,Models/HalfCitah_models/Ideal_models/HalfCheetah
+PPO,1.5874476987447697,0.36,1000,1117.0443730524228,Models/HalfCitah_models/Ideal_models/HalfCheetah
+PPO,1.5874476987447697,0.36,1000,757.4060816290544,Models/HalfCitah_models/Ideal_models/HalfCheetah
+PPO,1.5874476987447697,0.36,1000,767.2026261331537,Models/HalfCitah_models/Ideal_models/HalfCheetah
+PPO,1.5874476987447697,0.36,1000,3261.504332433487,Models/HalfCitah_models/Ideal_models/HalfCheetah
+PPO,1.5874476987447697,0.36,1000,1379.0730952005883,Models/HalfCitah_models/Ideal_models/HalfCheetah
+PPO,1.5874476987447697,0.36,1000,1085.8854667056985,Models/HalfCitah_models/Ideal_models/HalfCheetah
+PPO,1.5874476987447697,0.36,1000,865.3377078182145,Models/HalfCitah_models/Ideal_models/HalfCheetah
+PPO,1.5874476987447697,0.36,1000,833.7307034357075,Models/HalfCitah_models/Ideal_models/HalfCheetah
+PPO,1.5874476987447697,0.36,1000,3746.2629928617507,Models/HalfCitah_models/Ideal_models/HalfCheetah
