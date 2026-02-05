@@ -149,7 +149,7 @@ class HalfCheetah_NN(nn.Module):
         return alpha, beta, V
     
 class Hopper_NN_PPO(nn.Module):
-    def __init__(self, n_inputs = 17, n_outputs = 6) -> None:
+    def __init__(self, n_inputs = 11, n_outputs = 3) -> None:
         super().__init__()
 
         self.backbone = nn.Sequential(

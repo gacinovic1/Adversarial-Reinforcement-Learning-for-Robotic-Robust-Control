@@ -36,7 +36,7 @@ class Hopper_env_pert(ENV_Wrapper.ENV_Adversarial_wrapper):
         force = np.array([o_act[0], o_act[1], 0.0, 0.0, 0.0, 0.0])
         body_id = self.ids['foot']
         self.mj_data.xfrc_applied[self.ids['foot']] = np.array([o_act[0], o_act[1], 0.0, 0.0, 0.0, 0.0])
-        self.mj_data.xfrc_applied[self.ids['torso']] = np.array([o_act[2], o_act[3], 0.0, 0.0, 0.0, 0.0])
+        #self.mj_data.xfrc_applied[self.ids['torso']] = np.array([o_act[2], o_act[3], 0.0, 0.0, 0.0, 0.0])
         self.last_force = force
         self.last_force_body = body_id
         return
@@ -77,7 +77,7 @@ def Perturbate_env(env, pert = 0.0, frict = 1.0):
     # must be perturbed the walker model
 
     # modify pendolum mass
-    for i in [1, 2, 3]:
+    for i in [1, 2]:
       print(f"Original {i} mass: {env.unwrapped.model.body_mass[i]}", end='')
       env.unwrapped.model.body_mass[i] += env.unwrapped.model.body_mass[i]*pert
       print(f" ---> New {i} mass: {env.unwrapped.model.body_mass[i]}")
@@ -86,14 +86,14 @@ def Perturbate_env(env, pert = 0.0, frict = 1.0):
     model = env.unwrapped.model
     floor_id = mujoco.mj_name2id(model,mujoco.mjtObj.mjOBJ_GEOM,"floor")
     print(f'original friction: {env.mj_model.geom_friction[env.ids['floor']]}', end='')
-    for i in range(3):
+    for i in range(1):
         model.geom_friction[floor_id][i] = model.geom_friction[floor_id][i] * frict # sliding # [sliding, torsional, rolling]
     print(f' ---> new friction: {env.mj_model.geom_friction[env.ids['floor']]}')
     new_friction = model.geom_friction[floor_id][0]
 
     return new_mass, new_friction
 
-def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, model_to_load = '', heatmap = False):
+def main(render = True, train = False, alg = 'RARL', pm_pert = 0.0, frict = 1.0, model_to_load = '', heatmap = False):
     
     if render:
         render_mode = ENV_Wrapper.ENV_Adversarial_wrapper.HUMAN_RENDER
@@ -102,7 +102,7 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, m
     if alg in ['PPO', 'RARL_PPO']:
         
         player = net.Hopper_NN_PPO(n_inputs = 11, n_outputs = 3)
-        opponent = net.Hopper_NN_PPO(n_inputs = 11,n_outputs = 4) # 2 output for X, Y forces on the foot and torso
+        opponent = net.Hopper_NN_PPO(n_inputs = 11,n_outputs = 2) # 2 output for X, Y forces on the foot and torso
     
     if alg in ['SAC', 'RARL_SAC']:
         
@@ -135,21 +135,21 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, m
         env = Hopper_env_pert(
             env_name='Hopper-v5',
             action_range=[-1.0, 1.0],
-            adv_action_range=[-0.005, 0.005],
+            adv_action_range=[-0.01, 0.01],
             render_mode=False,#render_mode if render else None,
-            is_norm_wrapper=True, algorithm= alg)
+            is_norm_wrapper=False, algorithm= alg)
 
         
 
     # init the PPO or RARL_PPO algorithm
     if alg == 'RARL_PPO':
-        rarl_ppo = PPO.RARL_PPO(player, opponent, env, print_flag=False, lr_player=1e-4, name='Models/Hopper/Adversarial_models/Hopper_Adversarial_PPO_2')
+        rarl_ppo = PPO.RARL_PPO(player, opponent, env, print_flag=False, lr_player=1e-3, name='Models/Hopper/Adversarial_models/Hopper_Adversarial_PPO_2')
         if train: rarl_ppo.train(player_episode=10, 
-                             opponent_episode=4, 
-                             episodes=650, 
-                             mini_bach=128, 
-                             max_steps_rollouts=2048, 
-                             continue_prev_train=False)
+                                 opponent_episode=4, 
+                                 episodes=700, 
+                                 mini_bach=128, 
+                                 max_steps_rollouts=2048, 
+                                 continue_prev_train=False)
         rarl_ppo.load()
         
     elif alg == 'PPO':
@@ -179,9 +179,9 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, m
     if not render: return
     
     # choise the algorithm for run the simulation
-    RL = ppo  if alg == 'PPO' else \
+    RL = ppo     if alg == 'PPO' else \
         rarl_ppo if alg == 'RARL_PPO' else\
-        sac if alg == 'SAC' else \
+        sac      if alg == 'SAC' else \
         rarl_sac 
             
     # perturbate the modle paramether
@@ -206,9 +206,9 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, m
     perturbation = '' + ('Mass_' if pm_pert != 0.0 else '') + ('Friction_' if frict != 1.0 else '')
 
     if not heatmap:
-        file = f'Files/Hopper_2/{alg}_{perturbation}{new_mass:0.4f}_{new_friction:0.4f}_{token}.csv'
+        file = f'Files/Hopper_3/{alg}_{perturbation}{new_mass:0.4f}_{new_friction:0.4f}_{token}.csv'
     else:
-        file = f'Files/Hopper_2/heatmap/{alg}_{perturbation}{new_mass:0.4f}_{new_friction:0.4f}_{token}_heatmap.csv'
+        file = f'Files/Hopper_3/heatmap/{alg}_{perturbation}{new_mass:0.4f}_{new_friction:0.4f}_{token}_heatmap.csv'
     
     with open(file, 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=[k for k in list_for_file[0].keys()])
@@ -217,17 +217,17 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, m
 
 if __name__ == '__main__':
     #main(render=False, train=True, alg = 'PPO') # train with PPO
-    #main(render=False, train=True, alg = 'RARL_PPO') # train with RARL
+    main(render=False, train=True, alg = 'RARL_PPO') # train with RARL
     #main(render=True, train=False, pm_pert = 0, alg = 'PPO') # test PPO
-    #main(render=True, train=False, pm_pert = 0, alg = 'RARL_PPO') # test RARL PPO
+    #main(render=True, train=False, pm_pert = 0.0, alg = 'RARL_PPO') # test RARL PPO
     #main(render=False, train=True, pm_pert = 1, alg = 'RARL_SAC') # test SAC
   #  main(render=False, train=True, pm_pert = 1, alg = 'RARL_SAC') # test RARL SAC
+ 
+    
+    for path, alg in zip(['Adversarial_models/Hopper_Adversarial_PPO_2'], ['RARL_PPO']): #zip(['Adversarial_models/Hopper_Adversarial_PPO_2'], ['RARL_PPO']): # zip(['Idela-models/Hopper_PPO_2'], ['PPO'])
+        for pert in [-0.9, -0.5, -0.3, 0.0 ,0.2, 0.7, 0.9]: #  
+            for frict in [0.0, 0.4, 0.8, 1.0, 1.3, 1.7, 2.2, 2.5]:
+                main(render=True, train=False, pm_pert = pert, frict=frict, alg = alg, model_to_load = f'Models/Hopper/' + path, heatmap = True) # test RARL_PPO
+    
 
-    
-    for path, alg in zip(['Idela-models/Hopper_PPO_2', 'Adversarial_models/Hopper_Adversarial_PPO_2'], ['PPO', 'RARL_PPO']): #'Idela-models/Hopper_PPO_2', 'PPO', 
-            for pert in [-0.9, -0.5, -0.3, 0.0 ,0.2, 0.7, 0.9]: #  
-                for frict in [0.0, 0.4, 0.8, 1.0, 1.3, 1.7, 2.2, 2.5]:
-                    main(render=True, train=False, pm_pert = pert, frict=frict, alg = alg, model_to_load = f'Models/Hopper/' + path, heatmap = True) # test RARL_PPO
-    
-                    
     

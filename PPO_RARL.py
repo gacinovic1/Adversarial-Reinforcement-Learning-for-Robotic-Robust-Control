@@ -438,7 +438,7 @@ class RARL_PPO():
                 break
 
             steps += 1
-        if terminated: player_dict_t['next_v'], opponent_dict_t['next_v'] = 0, 0
+        if terminated: player_dict_t['next_v'], opponent_dict_t['next_v'] = 0.0, 0.0
         else:
           _, _, next_v_p = self.player.forward(s.to(self.device))
           player_dict_t  ['next_v'] = next_v_p.detach()

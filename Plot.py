@@ -136,7 +136,7 @@ def main(heatmap = False):
     if not heatmap:
     
         pert = "Friction"  # or "Friction"
-        path = Path('./Files/Half_C/heatmap')
+        path = Path('./Files/Hopper_3/heatmap')
         csvs_mass = [p for p in path.glob('*.csv') if (('Mass' in p.name) and not('Friction' in p.name)) or (not('Mass' in p.name) and not('Friction' in p.name))] 
         csvs_frict = [p for p in path.glob('*.csv') if (not('Mass' in p.name) and ('Friction' in p.name)) or (not('Mass' in p.name) and not('Friction' in p.name))]
 
@@ -145,7 +145,7 @@ def main(heatmap = False):
         plot_reward_vs_pert(
             csv_files=csvs_mass,
             base_algs=("PPO",),
-            rarl_algs=("RARL",),
+            rarl_algs=("RARL_PPO",),
             use_std=True,  
             title='Walker2D_01',
             perturbation = ('Mass',),
@@ -153,7 +153,7 @@ def main(heatmap = False):
         plot_reward_vs_pert(
             csv_files=csvs_frict,
             base_algs=("PPO",),
-            rarl_algs=("RARL",),
+            rarl_algs=("RARL_PPO",),
             use_std=True,  
             title='Walker2D_05',
             perturbation = ('Friction',),
@@ -161,7 +161,7 @@ def main(heatmap = False):
         
     else:
         
-        BASE = Path('./Files/Walker2D/heatmap')
+        BASE = Path('./Files/Hopper_3/heatmap')
         alg = "PPO"  #  or "SAC" 
 
         plot_reward_heatmaps_ppo_vs_rarl(alg = alg,base_path=BASE)
@@ -198,5 +198,5 @@ def Walker2D():
 
 if __name__ == '__main__':
 
-    #main(heatmap=True)
+    main(heatmap=True)
     main(heatmap=False)

@@ -1,0 +1,10 @@
+algorithm,Mass,Friction,steps,reward,model
+RARL_PPO,2.8405233576207722,0.8,356,1048.9024702033266,Models/Hopper/Adversarial_models/Hopper_Adversarial_PPO_2
+RARL_PPO,2.8405233576207722,0.8,98,200.1865651974947,Models/Hopper/Adversarial_models/Hopper_Adversarial_PPO_2
+RARL_PPO,2.8405233576207722,0.8,1000,3397.0904219570075,Models/Hopper/Adversarial_models/Hopper_Adversarial_PPO_2
+RARL_PPO,2.8405233576207722,0.8,464,1433.8533715478418,Models/Hopper/Adversarial_models/Hopper_Adversarial_PPO_2
+RARL_PPO,2.8405233576207722,0.8,350,1038.6704872049556,Models/Hopper/Adversarial_models/Hopper_Adversarial_PPO_2
+RARL_PPO,2.8405233576207722,0.8,1000,3376.58162499836,Models/Hopper/Adversarial_models/Hopper_Adversarial_PPO_2
+RARL_PPO,2.8405233576207722,0.8,752,2385.1402495729176,Models/Hopper/Adversarial_models/Hopper_Adversarial_PPO_2
+RARL_PPO,2.8405233576207722,0.8,62,121.41418406520188,Models/Hopper/Adversarial_models/Hopper_Adversarial_PPO_2
+RARL_PPO,2.8405233576207722,0.8,1000,3419.437772458697,Models/Hopper/Adversarial_models/Hopper_Adversarial_PPO_2

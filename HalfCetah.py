@@ -109,11 +109,11 @@ def Perturbate_env(env, pert = 0, frict = 1.0):
     # must be perturbed the walker model
 
     # modify pendolum mass
-    for i in [0, 1, 2, 3, 4, 5]:
+    for i in [3]:
       print(f"Original {i} mass: {env.unwrapped.model.body_mass[i]}", end='')
       env.unwrapped.model.body_mass[i] += env.unwrapped.model.body_mass[i]*pert
       print(f" ---> New {i} mass: {env.unwrapped.model.body_mass[i]}")
-      new_mass = env.unwrapped.model.body_mass[i].sum()
+    new_mass = sum(env.unwrapped.model.body_mass[i])
 
     model = env.unwrapped.model
     floor_id = mujoco.mj_name2id(model,mujoco.mjtObj.mjOBJ_GEOM,"floor")
@@ -121,7 +121,7 @@ def Perturbate_env(env, pert = 0, frict = 1.0):
     for i in range(3):
         model.geom_friction[floor_id][i] = model.geom_friction[floor_id][i] * frict # sliding # [sliding, torsional, rolling]
     print(f' ---> new friction: {env.mj_model.geom_friction[env.ids['floor']]}')
-    new_friction = model.geom_friction[floor_id][0]
+    new_friction = sum(model.geom_friction[floor_id])
 
     return new_mass, new_friction
 
