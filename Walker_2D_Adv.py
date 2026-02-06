@@ -146,8 +146,8 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, m
         rarl_ppo.load()
         
     elif alg == 'PPO':
-        ppo = PPO.PPO(player, env, print_flag=False, lr=1e-4, name='Walker_2D_model_PPO' if model_to_load == '' else model_to_load)
-        if train: ppo.train(episodes=10, mini_bach=128, max_steps_rollouts=2048, continue_prev_train=False)
+        ppo = PPO.PPO(player, env, print_flag=False, lr=1e-4, name='Models/Walker_models/Ideal_models/Walker_2D_model_PPO_2' if model_to_load == '' else model_to_load)
+        if train: ppo.train(episodes=500, mini_bach=128, max_steps_rollouts=2048, continue_prev_train=False)
         ppo.load()
 
     if alg == 'RARL_SAC':
@@ -209,7 +209,7 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, m
         writer.writerows(list_for_file)
 
 if __name__ == '__main__':
-    #main(render=False, train=True, alg = 'PPO') # train with PPO
+    main(render=False, train=True, alg = 'PPO') # train with PPO
     #main(render=False, train=True, alg = 'RARL') # train with RARL
     #main(render=True, train=False, pm_pert = 0, alg = 'PPO', model_to_load = 'Models/CartPole_models/Ideal_models/CartPole_model_1') # test PPO
  #   main(render=False, train=True, pm_pert = 1, alg = 'RARL_PPO') # test RARL PPO
@@ -234,7 +234,7 @@ if __name__ == '__main__':
     
     '''
 
-    for file, alg in zip(['Adversarial_models/Walker_feet_model_05'], ['RARL_PPO']): # 'Ideal_models/Walker_model_colab', 'PPO', 
+    for file, alg in zip(['Ideal_models/Walker_model_colab'], ['PPO']): # 
         for pert in [-0.9, -0.7, -0.5, -0.3, -0.1, 0.0,0.2, 0.5, 0.7, 0.9, 1]:
             for frict in [0.0,0.1, 0.4, 0.8, 1.0, 1.3, 1.7, 2.0, 2.2, 2.5]:
                 main(render=False, train=False, pm_pert = pert, frict=frict, alg = alg, model_to_load = f'Models/Walker_models/' + file, heatmap = True) # test RARL_PPO

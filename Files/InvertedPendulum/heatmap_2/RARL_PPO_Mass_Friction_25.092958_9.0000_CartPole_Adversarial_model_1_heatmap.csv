@@ -1,0 +1,15 @@
+algorithm,Mass,Friction,steps,reward,model
+RARL_PPO,25.092958206816533,9.0,633,632,Models/CartPole_models/Adversarial_models/CartPole_Adversarial_model_1
+RARL_PPO,25.092958206816533,9.0,1000,1000,Models/CartPole_models/Adversarial_models/CartPole_Adversarial_model_1
+RARL_PPO,25.092958206816533,9.0,1000,1000,Models/CartPole_models/Adversarial_models/CartPole_Adversarial_model_1
+RARL_PPO,25.092958206816533,9.0,23,22,Models/CartPole_models/Adversarial_models/CartPole_Adversarial_model_1
+RARL_PPO,25.092958206816533,9.0,746,745,Models/CartPole_models/Adversarial_models/CartPole_Adversarial_model_1
+RARL_PPO,25.092958206816533,9.0,500,499,Models/CartPole_models/Adversarial_models/CartPole_Adversarial_model_1
+RARL_PPO,25.092958206816533,9.0,1000,1000,Models/CartPole_models/Adversarial_models/CartPole_Adversarial_model_1
+RARL_PPO,25.092958206816533,9.0,1000,1000,Models/CartPole_models/Adversarial_models/CartPole_Adversarial_model_1
+RARL_PPO,25.092958206816533,9.0,1000,1000,Models/CartPole_models/Adversarial_models/CartPole_Adversarial_model_1
+RARL_PPO,25.092958206816533,9.0,262,261,Models/CartPole_models/Adversarial_models/CartPole_Adversarial_model_1
+RARL_PPO,25.092958206816533,9.0,302,301,Models/CartPole_models/Adversarial_models/CartPole_Adversarial_model_1
+RARL_PPO,25.092958206816533,9.0,1000,1000,Models/CartPole_models/Adversarial_models/CartPole_Adversarial_model_1
+RARL_PPO,25.092958206816533,9.0,1000,1000,Models/CartPole_models/Adversarial_models/CartPole_Adversarial_model_1
+RARL_PPO,25.092958206816533,9.0,463,462,Models/CartPole_models/Adversarial_models/CartPole_Adversarial_model_1

@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 from torch.distributions import Beta
+import mujoco
 
 import PPO_RARL as PPO
 import SAC_RARL as SAC 
@@ -25,7 +26,7 @@ class CartPole(gym.Wrapper):
             self.env = gym.make('InvertedPendulum-v5', reset_noise_scale=0.1)
 
     def _preprocess_action(self, action) -> float:
-        if self.algorithm in  ['PPO', 'PPO_RARL', 'RARL']:
+        if self.algorithm in  ['PPO', 'RARL_PPO', 'RARL']:
             return np.asarray(action.squeeze(0).cpu()) * 6 - 3 # scale action in range [-3, 3]
         if self.algorithm == 'SAC' or self.algorithm == 'RARL_SAC':
             return action.detach().cpu().numpy()[0]* 3 # scale action in range [-3, 3]
@@ -72,14 +73,26 @@ def Test(RL, env, steps = 10_000) -> tuple[float, int, int, list[float, int]]:
 
     return (reward, attempts, steps, rew_list[1:])
 
-def Perturbate_env(env, pert = 0):
-    print(f"Original pendolum mass: {env.unwrapped.model.body_mass[2]}")
+def Perturbate_env(env, pert = 0.0, frict = 1.0):
+    # must be perturbed the walker model
 
     # modify pendolum mass
-    env.unwrapped.model.body_mass[2] += env.unwrapped.model.body_mass[2]*pert
-    print(f"New pendolum mass: {env.unwrapped.model.body_mass[2]}")
+    
+    for i in [2]:
+      print(f"Original {i} mass: {env.unwrapped.model.body_mass[i]}", end='')
+      env.unwrapped.model.body_mass[i] += env.unwrapped.model.body_mass[i]*pert
+      print(f" ---> New {i} mass: {env.unwrapped.model.body_mass[i]}")
+      new_mass = env.unwrapped.model.body_mass[i].sum()
 
-def main(render = True, train = True, alg = 'RARL', pm_pert = 0, model_to_load = ''):
+    model = env.unwrapped.model
+    floor_id = mujoco.mj_name2id(model,mujoco.mjtObj.mjOBJ_GEOM,"floor")
+    #model.geom_friction[floor_id] = np.array([0.01, 0.01, 0.01])# [sliding, torsional, rolling]
+    model.geom_friction[floor_id][0] = model.geom_friction[floor_id][0] * frict # sliding
+    new_friction = model.geom_friction[floor_id][0]
+    
+    return new_mass, new_friction
+
+def main(render = True, train = False, alg = 'RARL', pm_pert = 0.0, frict = 1.0, model_to_load = '', heatmap = False, perturbation = "Mass"):
     # init environment and neural network
     render_mode = ''#'human'
     env = CartPole(render_mode if render else None, alg)
@@ -143,7 +156,7 @@ def main(render = True, train = True, alg = 'RARL', pm_pert = 0, model_to_load =
     if not render: return
 
     # perturbate the model paramether
-    Perturbate_env(env, pm_pert)
+    new_mass, new_friction = Perturbate_env(env, pm_pert, frict)
 
     # choise the algorithm for run the simulation
     RL = ppo  if alg == 'PPO' else \
@@ -152,23 +165,40 @@ def main(render = True, train = True, alg = 'RARL', pm_pert = 0, model_to_load =
         rarl_sac 
     
     list_for_file = []
-    for i in range(10):
-        rew, attempts, steps, rew_list = Test(RL, env, 10_000)
+    for i in range(4):
+        rew, attempts, steps, rew_list = Test(RL, env, 3_000)
         list_for_file.extend([{
             'algorithm' : alg,
-            'perturbation' : pm_pert,
+            'Mass' : new_mass,
+            'Friction': new_friction,
             'steps' : elem[1],
             'reward' : elem[0],
             'model' : RL.model_name
             } for elem in rew_list])
+    token = model_to_load.split("/")[-1]
+
+    perturbation = '' + ('Mass_' if pm_pert != 0.0 else '') + ('Friction_' if frict != 1.0 else '')
+
+    if not heatmap:
         
-    with open(f'Files/InvertedPendulum/{alg}_{pm_pert}.csv', 'w', newline='') as csvfile:
+        file = f'Files/InvertedPendulum/{alg}_{perturbation}{new_mass}_{new_friction}_{token}.csv'
+        
+    else:
+        file = f'Files/InvertedPendulum/heatmap_2/{alg}_{perturbation}{new_mass:04f}_{new_friction:0.4f}_{token}_heatmap.csv'
+    
+    with open(file, 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=[k for k in list_for_file[0].keys()])
         writer.writeheader()
         writer.writerows(list_for_file)
 
 
 if __name__ == '__main__':
-    for pert in [-0.9, -0.5, -0.1, 0, 0.1, 0.5, 1, 2]:
-        main(render=False, train=True, pm_pert = pert, alg = 'SAC', model_to_load='Models/CartPole_models/Ideal_models/CartPole_model_1')
+    #for pert in [-0.9, -0.5, -0.1, 0, 0.1, 0.5, 1, 2]:
+    #    main(render=False, train=True, pm_pert = pert, alg = 'SAC', model_to_load='Models/CartPole_models/Ideal_models/CartPole_model_1')
     #main(render=False, train=True, pm_pert = 0.1, alg = 'SAC') # test SAC
+
+    for file, alg in zip(['Ideal_models/CartPole_model_1', 'Adversarial_models/CartPole_Adversarial_model_1'], ['PPO', 'RARL_PPO']): # 
+        for pert in [-0.9, -0.7, -0.5, -0.3, -0.1, 0.0, 1, 4, 5, 7, 9, 11]:
+            for frict in [0.0, 0.5, 1.0, 1.5, 2.0, 3, 5, 9]:
+                main(render=True, train=False, pm_pert = pert, frict=frict, alg = alg, model_to_load = f'Models/CartPole_models/' + file, heatmap = True) # test RARL_PPO
+        

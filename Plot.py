@@ -136,7 +136,7 @@ def main(heatmap = False):
     if not heatmap:
     
         #pert = "Friction"  # or "Friction"
-        path = Path('./Files/Walker2D/heatmap_2')
+        path = Path('./Files/InvertedPendulum/heatmap_2')
         csvs_mass = [p for p in path.glob('*.csv') if (('Mass' in p.name) and not('Friction' in p.name)) or (not('Mass' in p.name) and not('Friction' in p.name))] 
         csvs_frict = [p for p in path.glob('*.csv') if (not('Mass' in p.name) and ('Friction' in p.name)) or (not('Mass' in p.name) and not('Friction' in p.name))]
 
@@ -161,13 +161,42 @@ def main(heatmap = False):
         
     else:
         
-        BASE = Path('./Files/Walker2D/heatmap_2')
+        BASE = Path('./Files/InvertedPendulum/heatmap_2')
         alg = "PPO"  #  or "SAC" 
 
         plot_reward_heatmaps_ppo_vs_rarl(alg = alg,base_path=BASE)
     
 def xor(a, b):
     return (a and not b) or (not a and b)
+
+def Walker2D_2_plots():
+    path = Path('./Files/Walker2D/heatmap_2')
+    csvs_mass = [p for p in path.glob('*.csv') if (('Mass' in p.name) and not('Friction' in p.name)) or (not('Mass' in p.name) and not('Friction' in p.name))] 
+    csvs_frict = [p for p in path.glob('*.csv') if (not('Mass' in p.name) and ('Friction' in p.name)) or (not('Mass' in p.name) and not('Friction' in p.name))]
+
+    #csvs_both  = [p for p in path.glob('*.csv') if xor('Mass' in p.name, 'Friction' in p.name) or (not('Mass' in p.name) and not('Friction' in p.name))]
+    
+    plot_reward_vs_pert(
+        csv_files=csvs_mass,
+        base_algs=("PPO",),
+        rarl_algs=("RARL_PPO",),
+        use_std=True,  
+        title='Walker2D',
+        perturbation = ('Mass',),
+    )
+    plot_reward_vs_pert(
+        csv_files=csvs_frict,
+        base_algs=("PPO",),
+        rarl_algs=("RARL_PPO",),
+        use_std=True,  
+        title='Walker2D',
+        perturbation = ('Friction',),
+    )
+
+    BASE = Path('./Files/Walker2D/heatmap_2')
+    alg = "PPO"  #  or "SAC" 
+
+    plot_reward_heatmaps_ppo_vs_rarl(alg = alg,base_path=BASE)
 
 def Walker2D_plots():
     path = Path('./Files/Walker2D')
