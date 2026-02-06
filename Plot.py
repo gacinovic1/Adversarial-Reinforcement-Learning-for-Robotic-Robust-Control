@@ -51,7 +51,7 @@ def plot_reward_vs_pert(csv_files,base_algs=('PPO', 'SAC'), rarl_algs=('RARL'),u
         plt.fill_between(rarl_stats[pert],rarl_stats['min'],rarl_stats['max'],alpha=0.3)
 
    
-    plt.xlabel(f'Perturbation of {pert} of the torso')
+    plt.xlabel(f'Perturbation of {pert}')
     plt.ylabel('Reward')
     plt.title(title)
     plt.grid(True, linestyle='--', alpha=0.5)
@@ -136,7 +136,7 @@ def main(heatmap = False):
     if not heatmap:
     
         #pert = "Friction"  # or "Friction"
-        path = Path('./Files/Half_C/heatmap')
+        path = Path('./Files/Walker2D/heatmap_2')
         csvs_mass = [p for p in path.glob('*.csv') if (('Mass' in p.name) and not('Friction' in p.name)) or (not('Mass' in p.name) and not('Friction' in p.name))] 
         csvs_frict = [p for p in path.glob('*.csv') if (not('Mass' in p.name) and ('Friction' in p.name)) or (not('Mass' in p.name) and not('Friction' in p.name))]
 
@@ -145,23 +145,23 @@ def main(heatmap = False):
         plot_reward_vs_pert(
             csv_files=csvs_mass,
             base_algs=("PPO",),
-            rarl_algs=("RARL",),
+            rarl_algs=("RARL_PPO",),
             use_std=True,  
-            title='Walker2D_01',
+            title='Walker2D',
             perturbation = ('Mass',),
         )
         plot_reward_vs_pert(
             csv_files=csvs_frict,
             base_algs=("PPO",),
-            rarl_algs=("RARL",),
+            rarl_algs=("RARL_PPO",),
             use_std=True,  
-            title='Walker2D_05',
+            title='Walker2D',
             perturbation = ('Friction',),
         )
         
     else:
         
-        BASE = Path('./Files/Half_C/heatmap')
+        BASE = Path('./Files/Walker2D/heatmap_2')
         alg = "PPO"  #  or "SAC" 
 
         plot_reward_heatmaps_ppo_vs_rarl(alg = alg,base_path=BASE)
@@ -209,7 +209,7 @@ def Hopper_plots():
         base_algs=("PPO",),
         rarl_algs=("RARL_PPO",),
         use_std=True,  
-        title='Walker2D_01',
+        title='Hopper',
         perturbation = ('Mass',),
     )
     plot_reward_vs_pert(
@@ -217,7 +217,7 @@ def Hopper_plots():
         base_algs=("PPO",),
         rarl_algs=("RARL_PPO",),
         use_std=True,  
-        title='Walker2D_05',
+        title='Hopper',
         perturbation = ('Friction',),
     )
 
@@ -238,7 +238,7 @@ def HalfCheetah_plots():
         base_algs=("PPO",),
         rarl_algs=("RARL",),
         use_std=True,  
-        title='Walker2D_01',
+        title='Half Cheetah',
         perturbation = ('Mass',),
     )
     plot_reward_vs_pert(
@@ -246,7 +246,7 @@ def HalfCheetah_plots():
         base_algs=("PPO",),
         rarl_algs=("RARL",),
         use_std=True,  
-        title='Walker2D_05',
+        title='Half Cheetah',
         perturbation = ('Friction',),
     )
 
@@ -259,3 +259,6 @@ if __name__ == '__main__':
 
     main(heatmap=True)
     main(heatmap=False)
+    #Walker2D_plots()
+    #Hopper_plots()
+    #HalfCheetah_plots()
