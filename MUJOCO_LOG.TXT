@@ -1090,3 +1090,30 @@ WARNING: Linesearch objective is not convex
 Sat Feb  7 13:34:38 2026
 WARNING: Linesearch objective is not convex
 
+Sat Feb  7 13:45:44 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 13:45:44 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0900.
+
+Sat Feb  7 13:45:44 2026
+WARNING: Nan, Inf or huge value in QPOS at DOF 0. The simulation is unstable. Time = 0.1100.
+
+Sat Feb  7 13:45:44 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0800.
+
+Sat Feb  7 13:45:44 2026
+WARNING: Nan, Inf or huge value in QPOS at DOF 0. The simulation is unstable. Time = 0.1200.
+
+Sat Feb  7 13:45:44 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 1. The simulation is unstable. Time = 0.1100.
+
+Sat Feb  7 13:45:44 2026
+WARNING: Nan, Inf or huge value in QPOS at DOF 0. The simulation is unstable. Time = 0.1000.
+
+Sat Feb  7 13:45:44 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 13:45:44 2026
+WARNING: Linesearch objective is not convex
+

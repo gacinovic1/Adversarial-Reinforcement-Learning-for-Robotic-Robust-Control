@@ -1,0 +1,13 @@
+algorithm,Mass,Friction,steps,reward,model
+RARL_PPO,53.40707511102649,2.2,1000,103.8488180132992,Models/Swimmer_models/Adversarial_models/Swimmer_adversarial_1
+RARL_PPO,53.40707511102649,2.2,1000,117.59036918160317,Models/Swimmer_models/Adversarial_models/Swimmer_adversarial_1
+RARL_PPO,53.40707511102649,2.2,1000,89.40862378210463,Models/Swimmer_models/Adversarial_models/Swimmer_adversarial_1
+RARL_PPO,53.40707511102649,2.2,1000,87.53830267411738,Models/Swimmer_models/Adversarial_models/Swimmer_adversarial_1
+RARL_PPO,53.40707511102649,2.2,1000,109.1316973627284,Models/Swimmer_models/Adversarial_models/Swimmer_adversarial_1
+RARL_PPO,53.40707511102649,2.2,1000,91.91943500883596,Models/Swimmer_models/Adversarial_models/Swimmer_adversarial_1
+RARL_PPO,53.40707511102649,2.2,1000,90.87518817474302,Models/Swimmer_models/Adversarial_models/Swimmer_adversarial_1
+RARL_PPO,53.40707511102649,2.2,1000,110.43199375075235,Models/Swimmer_models/Adversarial_models/Swimmer_adversarial_1
+RARL_PPO,53.40707511102649,2.2,1000,110.4452257748666,Models/Swimmer_models/Adversarial_models/Swimmer_adversarial_1
+RARL_PPO,53.40707511102649,2.2,1000,70.90108130155424,Models/Swimmer_models/Adversarial_models/Swimmer_adversarial_1
+RARL_PPO,53.40707511102649,2.2,1000,84.45701002354183,Models/Swimmer_models/Adversarial_models/Swimmer_adversarial_1
+RARL_PPO,53.40707511102649,2.2,1000,116.37794263698672,Models/Swimmer_models/Adversarial_models/Swimmer_adversarial_1

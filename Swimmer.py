@@ -82,10 +82,10 @@ def Perturbate_env(env, pert = 0.0, frict = 1.0):
 
     model = env.unwrapped.model
     floor_id = mujoco.mj_name2id(model,mujoco.mjtObj.mjOBJ_GEOM,"floor")
-    print(f'original friction: {env.mj_model.geom_friction[env.ids['floor']]}', end='')
+    print(f'original friction: {env.mj_model.geom_friction[floor_id]}', end='')
     for i in range(1):
         model.geom_friction[floor_id][i] = model.geom_friction[floor_id][i] * frict # sliding # [sliding, torsional, rolling]
-    print(f' ---> new friction: {env.mj_model.geom_friction[env.ids['floor']]}')
+    print(f' ---> new friction: {env.mj_model.geom_friction[floor_id]}')
     new_friction = model.geom_friction[floor_id][0]
 
     return new_mass, new_friction
@@ -119,7 +119,7 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0.0, frict = 1.0,
             'Q2'    : net.SoftQNetwork_SAC(n_inputs = 8 + 2)
         }
 
-    if alg in ['PPO', 'SAC'] or (alg in ['RARL_PPO', 'RARL_SAC'] and not train):
+    if alg in ['PPO', 'SAC']:
         
         env = ENV_Wrapper.ENV_wrapper(
         env_name='Swimmer-v5',
@@ -217,8 +217,8 @@ if __name__ == '__main__':
     #main(render=False, train=True, pm_pert = 1, alg = 'RARL_SAC') # test SAC
   #  main(render=False, train=True, pm_pert = 1, alg = 'RARL_SAC') # test RARL SAC
     
-    for path, alg in zip(reversed(['Ideal_models/Swimmer_1', 'Adversarial_models/Swimmer_adversarial_1']), reversed(['PPO', 'RARL_PPO'])): #zip(['Adversarial_models/Hopper_Adversarial_PPO_2'], ['RARL_PPO']): # zip(['Idela-models/Hopper_PPO_2'], ['PPO'])
-        for pert in [-0.9, -0.7, -0.5, -0.3, -0.1, 0.0 ,0.2, 0.5, 0.7, 0.9, 1]: #  
+    for path, alg in zip(['Adversarial_models/Swimmer_adversarial_1'], ['RARL_PPO']): #'Ideal_models/Swimmer_1',
+        for pert in [ -0.7, -0.5, -0.3, -0.1, 0.0 ,0.2, 0.5, 0.7, 0.9, 1]: #  
             for frict in [0.1, 0.4, 0.8, 1.0, 1.3, 1.7, 2.0, 2.2, 2.5]:
                 main(render=True, train=False, pm_pert = pert, frict=frict, alg = alg, model_to_load = f'Models/Swimmer_models/' + path, heatmap = True) # test RARL_PPO
     

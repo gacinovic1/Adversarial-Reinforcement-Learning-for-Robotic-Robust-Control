@@ -1,0 +1,13 @@
+algorithm,Mass,Friction,steps,reward,model
+PPO,60.52801845916335,1.3,1000,72.71196570021984,Models/Swimmer_models/Ideal_models/Swimmer_1
+PPO,60.52801845916335,1.3,1000,70.5440946704666,Models/Swimmer_models/Ideal_models/Swimmer_1
+PPO,60.52801845916335,1.3,1000,67.7261101778137,Models/Swimmer_models/Ideal_models/Swimmer_1
+PPO,60.52801845916335,1.3,1000,63.80088447487611,Models/Swimmer_models/Ideal_models/Swimmer_1
+PPO,60.52801845916335,1.3,1000,70.79796684064294,Models/Swimmer_models/Ideal_models/Swimmer_1
+PPO,60.52801845916335,1.3,1000,73.1061976805374,Models/Swimmer_models/Ideal_models/Swimmer_1
+PPO,60.52801845916335,1.3,1000,64.81352075549601,Models/Swimmer_models/Ideal_models/Swimmer_1
+PPO,60.52801845916335,1.3,1000,73.77607783963403,Models/Swimmer_models/Ideal_models/Swimmer_1
+PPO,60.52801845916335,1.3,1000,69.28522824731286,Models/Swimmer_models/Ideal_models/Swimmer_1
+PPO,60.52801845916335,1.3,1000,72.58998596082645,Models/Swimmer_models/Ideal_models/Swimmer_1
+PPO,60.52801845916335,1.3,1000,70.24502240987448,Models/Swimmer_models/Ideal_models/Swimmer_1
+PPO,60.52801845916335,1.3,1000,71.16446946080842,Models/Swimmer_models/Ideal_models/Swimmer_1

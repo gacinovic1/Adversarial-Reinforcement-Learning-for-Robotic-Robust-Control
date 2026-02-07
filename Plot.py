@@ -136,7 +136,7 @@ def main(heatmap = False):
     if not heatmap:
     
         #pert = "Friction"  # or "Friction"
-        path = Path('./Files/InvertedPendulum/heatmap_2')
+        path = Path('./Files/Swimmer/heatmap')
         csvs_mass = [p for p in path.glob('*.csv') if (('Mass' in p.name) and not('Friction' in p.name)) or (not('Mass' in p.name) and not('Friction' in p.name))] 
         csvs_frict = [p for p in path.glob('*.csv') if (not('Mass' in p.name) and ('Friction' in p.name)) or (not('Mass' in p.name) and not('Friction' in p.name))]
 
@@ -147,7 +147,7 @@ def main(heatmap = False):
             base_algs=("PPO",),
             rarl_algs=("RARL_PPO",),
             use_std=True,  
-            title='Walker2D',
+            title='Swimmer',
             perturbation = ('Mass',),
         )
         plot_reward_vs_pert(
@@ -155,13 +155,13 @@ def main(heatmap = False):
             base_algs=("PPO",),
             rarl_algs=("RARL_PPO",),
             use_std=True,  
-            title='Walker2D',
+            title='Swimmer',
             perturbation = ('Friction',),
         )
         
     else:
         
-        BASE = Path('./Files/InvertedPendulum/heatmap_2')
+        BASE = Path('./Files/Swimmer/heatmap')
         alg = "PPO"  #  or "SAC" 
 
         plot_reward_heatmaps_ppo_vs_rarl(alg = alg,base_path=BASE)
