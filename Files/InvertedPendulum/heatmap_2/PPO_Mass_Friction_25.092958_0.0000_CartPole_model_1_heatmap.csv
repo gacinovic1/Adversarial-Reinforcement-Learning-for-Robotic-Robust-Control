@@ -1,0 +1,13 @@
+algorithm,Mass,Friction,steps,reward,model
+PPO,25.092958206816533,0.0,16,15,Models/CartPole_models/Ideal_models/CartPole_model_1
+PPO,25.092958206816533,0.0,1000,1000,Models/CartPole_models/Ideal_models/CartPole_model_1
+PPO,25.092958206816533,0.0,1000,1000,Models/CartPole_models/Ideal_models/CartPole_model_1
+PPO,25.092958206816533,0.0,1000,1000,Models/CartPole_models/Ideal_models/CartPole_model_1
+PPO,25.092958206816533,0.0,1000,1000,Models/CartPole_models/Ideal_models/CartPole_model_1
+PPO,25.092958206816533,0.0,1000,1000,Models/CartPole_models/Ideal_models/CartPole_model_1
+PPO,25.092958206816533,0.0,1000,1000,Models/CartPole_models/Ideal_models/CartPole_model_1
+PPO,25.092958206816533,0.0,1000,1000,Models/CartPole_models/Ideal_models/CartPole_model_1
+PPO,25.092958206816533,0.0,1000,1000,Models/CartPole_models/Ideal_models/CartPole_model_1
+PPO,25.092958206816533,0.0,511,510,Models/CartPole_models/Ideal_models/CartPole_model_1
+PPO,25.092958206816533,0.0,1000,1000,Models/CartPole_models/Ideal_models/CartPole_model_1
+PPO,25.092958206816533,0.0,1000,1000,Models/CartPole_models/Ideal_models/CartPole_model_1

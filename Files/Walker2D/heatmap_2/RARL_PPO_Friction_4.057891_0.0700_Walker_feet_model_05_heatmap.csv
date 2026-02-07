@@ -1,0 +1,15 @@
+algorithm,Mass,Friction,steps,reward,model
+RARL_PPO,4.057890510886818,0.06999999999999999,1000,3417.7037970681754,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.06999999999999999,800,2932.637580426171,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.06999999999999999,940,3240.7050976631517,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.06999999999999999,901,3268.8417793048625,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.06999999999999999,1000,3503.722626857572,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.06999999999999999,747,2556.43258974378,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.06999999999999999,1000,3539.665789080512,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.06999999999999999,325,1080.8631390997625,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.06999999999999999,591,1854.4194518839686,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.06999999999999999,1000,3631.0526383216984,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.06999999999999999,616,2253.4857748342147,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.06999999999999999,849,3031.012056521744,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.06999999999999999,1000,3380.785765831115,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.06999999999999999,486,1712.626064520815,Models/Walker_models/Adversarial_models/Walker_feet_model_05

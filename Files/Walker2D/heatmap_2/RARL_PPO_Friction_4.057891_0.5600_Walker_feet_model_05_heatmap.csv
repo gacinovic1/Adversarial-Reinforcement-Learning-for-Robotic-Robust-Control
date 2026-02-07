@@ -1,0 +1,17 @@
+algorithm,Mass,Friction,steps,reward,model
+RARL_PPO,4.057890510886818,0.5599999999999999,1000,3464.0368372859707,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.5599999999999999,1000,3406.258925410602,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.5599999999999999,419,1508.2400941855576,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.5599999999999999,558,1848.4133975662126,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.5599999999999999,1000,3466.63324375334,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.5599999999999999,672,2406.1455368337956,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.5599999999999999,884,3097.262649115025,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.5599999999999999,125,346.344794826683,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.5599999999999999,106,279.55949596674645,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.5599999999999999,1000,3543.557051035565,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.5599999999999999,507,1722.9025688458842,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.5599999999999999,1000,3417.440916293542,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.5599999999999999,161,464.2917796889251,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.5599999999999999,1000,3515.989022124672,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.5599999999999999,392,1365.2901191543988,Models/Walker_models/Adversarial_models/Walker_feet_model_05
+RARL_PPO,4.057890510886818,0.5599999999999999,187,524.1535846746501,Models/Walker_models/Adversarial_models/Walker_feet_model_05

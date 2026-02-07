@@ -301,3 +301,792 @@ WARNING: Linesearch objective is not convex
 Fri Jan 16 11:45:30 2026
 WARNING: Nan, Inf or huge value in QPOS at DOF 0. The simulation is unstable. Time = 36.1400.
 
+Sat Feb  7 12:12:20 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0300.
+
+Sat Feb  7 12:12:20 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:12:20 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:12:20 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:12:20 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:12:20 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:12:20 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:12:20 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:12:21 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:13 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:13 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0700.
+
+Sat Feb  7 12:15:13 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:13 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:13 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:13 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:13 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:13 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 1. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:13 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:13 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:13 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:14 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:14 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:14 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:14 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:14 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:14 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:14 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:14 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:14 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:14 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:14 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:14 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:14 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:14 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0500.
+
+Sat Feb  7 12:15:14 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0700.
+
+Sat Feb  7 12:15:14 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:14 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:14 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:15 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 1. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:15 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:15 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:15 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:15 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:15 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:15 2026
+WARNING: Nan, Inf or huge value in QPOS at DOF 1. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:15 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:15 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:15 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:15 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:15 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:15 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:15 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:15 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:15 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:15 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:15 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:15 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:15 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:15 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 1. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:15 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:16 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:16 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:16 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:16 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:16 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:16 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:16 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:16 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:16 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:16 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 2. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:16 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:16 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:16 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:16 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 2. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:16 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:16 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:16 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:16 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:43 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0300.
+
+Sat Feb  7 12:15:43 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:43 2026
+WARNING: Nan, Inf or huge value in QPOS at DOF 2. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:43 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:43 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:43 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:43 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:43 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:43 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:43 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:43 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:43 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:15:43 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:18:12 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0300.
+
+Sat Feb  7 12:18:12 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:18:12 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:18:12 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:18:12 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:18:12 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0300.
+
+Sat Feb  7 12:21:39 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:21:39 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0700.
+
+Sat Feb  7 12:21:39 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0400.
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 12:21:39 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 13:34:14 2026
+WARNING: Nan, Inf or huge value in QPOS at DOF 0. The simulation is unstable. Time = 0.0500.
+
+Sat Feb  7 13:34:14 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.1100.
+
+Sat Feb  7 13:34:14 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 2. The simulation is unstable. Time = 0.0700.
+
+Sat Feb  7 13:34:14 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0500.
+
+Sat Feb  7 13:34:14 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0800.
+
+Sat Feb  7 13:34:14 2026
+WARNING: Nan, Inf or huge value in QPOS at DOF 1. The simulation is unstable. Time = 0.0800.
+
+Sat Feb  7 13:34:14 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.1600.
+
+Sat Feb  7 13:34:14 2026
+WARNING: Nan, Inf or huge value in QPOS at DOF 0. The simulation is unstable. Time = 0.0900.
+
+Sat Feb  7 13:34:14 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0800.
+
+Sat Feb  7 13:34:14 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 13:34:38 2026
+WARNING: Nan, Inf or huge value in QPOS at DOF 0. The simulation is unstable. Time = 0.0500.
+
+Sat Feb  7 13:34:38 2026
+WARNING: Nan, Inf or huge value in QVEL at DOF 0. The simulation is unstable. Time = 0.0700.
+
+Sat Feb  7 13:34:38 2026
+WARNING: Linesearch objective is not convex
+
+Sat Feb  7 13:34:38 2026
+WARNING: Linesearch objective is not convex
+

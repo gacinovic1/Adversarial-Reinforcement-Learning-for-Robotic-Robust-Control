@@ -68,7 +68,7 @@ def Test(RL, env, steps = 10_000) -> tuple[float, int, int, list[float, int]]:
 
     return (reward, attempts, steps, rew_list[1:])
 
-def Perturbate_env(env, pert = 0, frict = 1.0):
+def Perturbate_env(env, pert = 0.0, frict = 1.0):
     # must be perturbed the walker model
 
     # modify pendolum mass
@@ -82,7 +82,7 @@ def Perturbate_env(env, pert = 0, frict = 1.0):
     model = env.unwrapped.model
     floor_id = mujoco.mj_name2id(model,mujoco.mjtObj.mjOBJ_GEOM,"floor")
     #model.geom_friction[floor_id] = np.array([0.01, 0.01, 0.01])# [sliding, torsional, rolling]
-    model.geom_friction[floor_id] = model.geom_friction[floor_id][0] * frict # sliding
+    model.geom_friction[floor_id][0] = model.geom_friction[floor_id][0] * frict # sliding
     new_friction = model.geom_friction[floor_id][0]
     
     return new_mass, new_friction
@@ -146,8 +146,8 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, m
         rarl_ppo.load()
         
     elif alg == 'PPO':
-        ppo = PPO.PPO(player, env, print_flag=False, lr=1e-4, name='Walker_2D_model_PPO' if model_to_load == '' else model_to_load)
-        if train: ppo.train(episodes=10, mini_bach=128, max_steps_rollouts=2048, continue_prev_train=False)
+        ppo = PPO.PPO(player, env, print_flag=False, lr=1e-4, name='Models/Walker_models/Ideal_models/Walker_2D_model_PPO_2' if model_to_load == '' else model_to_load)
+        if train: ppo.train(episodes=500, mini_bach=128, max_steps_rollouts=2048, continue_prev_train=False)
         ppo.load()
 
     if alg == 'RARL_SAC':
@@ -182,7 +182,7 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, m
     #RL = sac if alg == 'SAC' else rarl_sac
     
     list_for_file = []
-    for i in range(5):
+    for i in range(4):
         rew, attempts, steps, rew_list = Test(RL, env, 3_000)
         list_for_file.extend([{
             'algorithm' : alg,
@@ -193,12 +193,15 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, m
             'model' : RL.model_name
             } for elem in rew_list])
     token = model_to_load.split("/")[-1]
+
+    perturbation = '' + ('Mass_' if pm_pert != 0.0 else '') + ('Friction_' if frict != 1.0 else '')
+
     if not heatmap:
         
-        file = f'Files/Walker2D/{alg}_{perturbation}_{new_mass}_{new_friction}_{token}.csv'
+        file = f'Files/Walker2D/{alg}_{perturbation}{new_mass}_{new_friction}_{token}.csv'
         
     else:
-        file = f'Files/Walker2D/heatmap/{alg}_{new_mass}_{new_friction}_{token}_heatmap.csv'
+        file = f'Files/Walker2D/heatmap_2/{alg}_{perturbation}{new_mass:04f}_{new_friction:0.4f}_{token}_heatmap.csv'
     
     with open(file, 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=[k for k in list_for_file[0].keys()])
@@ -206,7 +209,7 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, m
         writer.writerows(list_for_file)
 
 if __name__ == '__main__':
-    #main(render=False, train=True, alg = 'PPO') # train with PPO
+    main(render=False, train=True, alg = 'PPO') # train with PPO
     #main(render=False, train=True, alg = 'RARL') # train with RARL
     #main(render=True, train=False, pm_pert = 0, alg = 'PPO', model_to_load = 'Models/CartPole_models/Ideal_models/CartPole_model_1') # test PPO
  #   main(render=False, train=True, pm_pert = 1, alg = 'RARL_PPO') # test RARL PPO
@@ -217,21 +220,23 @@ if __name__ == '__main__':
     for file in ["Walker_feet_model", "Walker_feet_model_01", "Walker_feet_model_05"]:
         for pert in [-0.9, -0.7, -0.5, -0.3, -0.1, 0.0,0.2, 0.5, 0.7, 0.9, 1]:
             main(render=False, train=False, pm_pert = pert, frict=1.0, alg = 'RARL_PPO', model_to_load = f'Models/Walker_models/Adversarial_models/{file}', perturbation = "Mass") # test RARL_PPO
-    '''
+    
             
     for file in ["Walker_feet_model", "Walker_feet_model_01", "Walker_feet_model_05"]:
         for frict in [0.0,0.1, 0.4, 0.8, 1.0, 1.3, 1.7, 2.0, 2.2, 2.5]:
             main(render=False, train=False, pm_pert = 0, frict=frict, alg = 'RARL_PPO', model_to_load = f'Models/Walker_models/Adversarial_models/{file}', perturbation = "Friction") # test RARL_PPO
-    '''   
+      
     for pert in [-0.9, -0.7, -0.5, -0.3, -0.1, 0.0,0.2, 0.5, 0.7, 0.9, 1]:
         main(render=False, train=False, pm_pert = pert, frict=1.0, alg = 'PPO', model_to_load = f'Models/Walker_models/Ideal_models/Walker_model_colab', perturbation = "Mass") # test PPO
-     '''       
+           
     for frict in [0.0,0.1, 0.4, 0.8, 1.0, 1.3, 1.7, 2.0, 2.2, 2.5]:
         main(render=False, train=False, pm_pert = 0, frict=frict, alg = 'PPO', model_to_load = f'Models/Walker_models/Ideal_models/Walker_model_colab', perturbation = "Friction") # test PPO
     
     '''
-    for pert in [-0.9, -0.7, -0.5, -0.3, -0.1, 0.0,0.2, 0.5, 0.7, 0.9, 1]:
-        for frict in [0.0,0.1, 0.4, 0.8, 1.0, 1.3, 1.7, 2.0, 2.2, 2.5]:
-            main(render=False, train=False, pm_pert = pert, frict=frict, alg = 'PPO', model_to_load = f'Models/Walker_models/Ideal_models/Walker_model_colab', heatmap = True) # test RARL_PPO
-            
-    '''
+
+    for file, alg in zip(['Ideal_models/Walker_model_colab'], ['PPO']): # 
+        for pert in [-0.9, -0.7, -0.5, -0.3, -0.1, 0.0,0.2, 0.5, 0.7, 0.9, 1]:
+            for frict in [0.0,0.1, 0.4, 0.8, 1.0, 1.3, 1.7, 2.0, 2.2, 2.5]:
+                main(render=False, train=False, pm_pert = pert, frict=frict, alg = alg, model_to_load = f'Models/Walker_models/' + file, heatmap = True) # test RARL_PPO
+                
+    

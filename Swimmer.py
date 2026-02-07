@@ -11,6 +11,9 @@ import PPO_RARL as PPO
 import SAC_RARL
 import ENV_Wrapper
 import architectures as net
+
+import mujoco
+import csv
     
     
 class Swimmer_env_pert(ENV_Wrapper.ENV_Adversarial_wrapper):
@@ -28,7 +31,7 @@ class Swimmer_env_pert(ENV_Wrapper.ENV_Adversarial_wrapper):
     def perturbate_env(self, o_act):
         # apply forces on feats
         o_act = self._preprocess_action(o_act)
-        force = np.array([o_act[0], o_act[1], 0.0, 0.0, 0.0, 0.0])
+        force = np.array([o_act[0], o_act[1], o_act[2], 0.0, 0.0, 0.0])
         body_id = self.ids['torso']
         self.mj_data.xfrc_applied[body_id] = force
         self.last_force = force
@@ -45,12 +48,11 @@ class Swimmer_env_pert(ENV_Wrapper.ENV_Adversarial_wrapper):
         state, reward, terminated, truncated, info = self.env.step(self._preprocess_action(self._scale_action(action, self.action_range)))
         return self._postprocess_state(state), reward, terminated, truncated, info
 
-def Test(RL, env, steps = 10_000):
-    
-    env.update_running_stats = False 
+def Test(RL, env, steps = 10_000) -> tuple[float, int, int, list[float, int]]:
     s, _ = env.reset()
+    rew_list = [(0, 0)]
     reward = 0
-    attempts = 1
+    attempts = 0
     for i in range(steps):
         env.update_running_stats = False 
         s, r, term, tronc, _ = env.step(RL.act(s))
@@ -58,35 +60,47 @@ def Test(RL, env, steps = 10_000):
         if term or tronc: 
             s, _ = env.reset()
             attempts += 1
+            rew_list.append((reward - np.sum([r[0] for r in rew_list]), i+1 - np.sum([s[1] for s in rew_list])))
         if np.mod(i, 1000) == 0: print('#', end='', flush=True)
     env.close()
 
     print(f'\n---> rewards: {reward/attempts} | gained in {attempts} attempts')
 
+    return (reward, attempts, steps, rew_list[1:])
 
-def Perturbate_env(env, pert = 0):
+
+def Perturbate_env(env, pert = 0.0, frict = 1.0):
+    #if pert == 0: return
     # must be perturbed the walker model
-    print(f"Original mass: {env.unwrapped.model.body_mass[1]}")   # torso of the robot
 
-    # modify body's masses
-    env.unwrapped.model.body_mass[1] += env.unwrapped.model.body_mass[1]*pert
-    print(f"New mass: {env.unwrapped.model.body_mass[1]}")
+    # modify pendolum mass
+    for i in [1]:
+      print(f"Original {i} mass: {env.unwrapped.model.body_mass[i]}", end='')
+      env.unwrapped.model.body_mass[i] += env.unwrapped.model.body_mass[i]*pert
+      print(f" ---> New {i} mass: {env.unwrapped.model.body_mass[i]}")
+      new_mass = env.unwrapped.model.body_mass[i].sum()
 
     model = env.unwrapped.model
     floor_id = mujoco.mj_name2id(model,mujoco.mjtObj.mjOBJ_GEOM,"floor")
-    model.geom_friction[floor_id] = np.array([0.01, 0.01, 0.01])# [sliding, torsional, rolling]
+    print(f'original friction: {env.mj_model.geom_friction[env.ids['floor']]}', end='')
+    for i in range(1):
+        model.geom_friction[floor_id][i] = model.geom_friction[floor_id][i] * frict # sliding # [sliding, torsional, rolling]
+    print(f' ---> new friction: {env.mj_model.geom_friction[env.ids['floor']]}')
+    new_friction = model.geom_friction[floor_id][0]
+
+    return new_mass, new_friction
 
 
-def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
+def main(render = True, train = False, alg = 'RARL', pm_pert = 0.0, frict = 1.0, model_to_load = '', heatmap = False):
     
     if render:
-        render_mode = ENV_Wrapper.ENV_Adversarial_wrapper.HUMAN_RENDER
+        render_mode = ''#ENV_Wrapper.ENV_Adversarial_wrapper.HUMAN_RENDER
         
     # init environment and neural networks
     if alg in ['PPO', 'RARL_PPO']:
         
-        player = net.Walker_NN_PPO(n_inputs = 8,n_outputs=2)
-        opponent = net.Walker_NN_PPO(n_inputs = 8,n_outputs=2) # 2 output for X, Y forces on torso
+        player = net.Swimmer_NN_PPO()
+        opponent = net.Swimmer_NN_PPO(n_outputs=3) # 2 output for X, Y forces on torso
     
     if alg in ['SAC', 'RARL_SAC']:
         
@@ -112,7 +126,7 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
         act_min=-1.0,
         act_max=1.0,
         render_mode=render_mode if render else None,
-        is_norm_wrapper=True, algorithm= alg)
+        is_norm_wrapper=False, algorithm= alg)
         
     else:
 
@@ -127,18 +141,18 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
 
     # init the PPO or RARL_PPO algorithm
     if alg == 'RARL_PPO':
-        rarl_ppo = PPO.RARL_PPO(player, opponent, env, print_flag=False, lr_player=1e-4, name='Swimmer_Adversarial_PPO_model')
+        rarl_ppo = PPO.RARL_PPO(player, opponent, env, print_flag=False, lr_player=1e-3, name=model_to_load)
         if train: rarl_ppo.train(player_episode=10, 
                              opponent_episode=4, 
-                             episodes=10, 
+                             episodes=700, 
                              mini_bach=128, 
                              max_steps_rollouts=2048, 
                              continue_prev_train=False)
         rarl_ppo.load()
         
     elif alg == 'PPO':
-        ppo = PPO.PPO(player, env, print_flag=False, lr=1e-4, name='Swimmer_model_PPO')
-        if train: ppo.train(episodes=10, mini_bach=128, max_steps_rollouts=2048, continue_prev_train=False)
+        ppo = PPO.PPO(player, env, print_flag=False, lr=1e-3, name=model_to_load)
+        if train: ppo.train(episodes=500, mini_bach=128, max_steps_rollouts=2048, continue_prev_train=False)
         ppo.load()
 
     if alg == 'RARL_SAC':
@@ -162,8 +176,7 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
     # render the simulation if needed
     if not render: return
 
-    # perturbate the model paramether
-    Perturbate_env(env, pm_pert)
+    new_mass, new_friction = Perturbate_env(env, pm_pert, frict)
     
     # choise the algorithm for run the simulation
     RL = ppo  if alg == 'PPO' else \
@@ -171,13 +184,41 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0):
         sac if alg == 'SAC' else \
         rarl_sac 
             
-    Test(RL, env, 1_000)
+    list_for_file = []
+    for i in range(4):
+        rew, attempts, steps, rew_list = Test(RL, env, 3_000)
+        list_for_file.extend([{
+            'algorithm' : alg,
+            'Mass' : new_mass,
+            'Friction': new_friction,
+            'steps' : elem[1],
+            'reward' : elem[0],
+            'model' : RL.model_name
+            } for elem in rew_list])
+    token = model_to_load.split("/")[-1]
+
+    perturbation = '' + ('Mass_' if pm_pert != 0.0 else '') + ('Friction_' if frict != 1.0 else '')
+
+    if not heatmap:
+        file = f'Files/Swimmer/{alg}_{perturbation}{new_mass:0.4f}_{new_friction:0.4f}_{token}.csv'
+    else:
+        file = f'Files/Swimmer/heatmap/{alg}_{perturbation}{new_mass:0.4f}_{new_friction:0.4f}_{token}_heatmap.csv'
+    
+    with open(file, 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=[k for k in list_for_file[0].keys()])
+        writer.writeheader()
+        writer.writerows(list_for_file)
 
 if __name__ == '__main__':
-    #main(render=False, train=True, alg = 'PPO') # train with PPO
-    #main(render=False, train=True, alg = 'RARL') # train with RARL
+    #main(render=False, train=True, alg = 'PPO', model_to_load='Models/Swimmer_models/Ideal_models/Swimmer_1') # train with PPO
+    #main(render=False, train=True, alg = 'RARL_PPO', model_to_load='Models/Swimmer_models/Adversarial_models/Swimmer_adversarial_1') # train with RARL
  #   main(render=False, train=True, pm_pert = 1, alg = 'PPO') # test PPO
  #   main(render=False, train=True, pm_pert = 1, alg = 'RARL_PPO') # test RARL PPO
-    main(render=False, train=True, pm_pert = 1, alg = 'RARL_SAC') # test SAC
+    #main(render=False, train=True, pm_pert = 1, alg = 'RARL_SAC') # test SAC
   #  main(render=False, train=True, pm_pert = 1, alg = 'RARL_SAC') # test RARL SAC
+    
+    for path, alg in zip(reversed(['Ideal_models/Swimmer_1', 'Adversarial_models/Swimmer_adversarial_1']), reversed(['PPO', 'RARL_PPO'])): #zip(['Adversarial_models/Hopper_Adversarial_PPO_2'], ['RARL_PPO']): # zip(['Idela-models/Hopper_PPO_2'], ['PPO'])
+        for pert in [-0.9, -0.7, -0.5, -0.3, -0.1, 0.0 ,0.2, 0.5, 0.7, 0.9, 1]: #  
+            for frict in [0.1, 0.4, 0.8, 1.0, 1.3, 1.7, 2.0, 2.2, 2.5]:
+                main(render=True, train=False, pm_pert = pert, frict=frict, alg = alg, model_to_load = f'Models/Swimmer_models/' + path, heatmap = True) # test RARL_PPO
     
