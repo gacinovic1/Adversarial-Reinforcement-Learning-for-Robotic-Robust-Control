@@ -4,12 +4,12 @@ import torch
 import torch.nn.functional as F
 
 class SoftQNetwork_SAC(nn.Module):
-    def __init__(self, n_inputs = 17 + 6, n_outputs = 1) -> None:
+    def __init__(self, n_inputs = 17 + 6, n_outputs = 1, hidden = 256) -> None:
         super().__init__()
 
-        self.linear1 = nn.Linear(n_inputs, 256)
-        self.linear2 = nn.Linear(256, 256)
-        self.linear3 = nn.Linear(256, n_outputs)
+        self.linear1 = nn.Linear(n_inputs, hidden)
+        self.linear2 = nn.Linear(hidden, hidden)
+        self.linear3 = nn.Linear(hidden, n_outputs)
         
         # inizialization of weights in a xavier uniform manner and bias to zero
         gain = torch.nn.init.calculate_gain('relu')
@@ -29,14 +29,14 @@ class SoftQNetwork_SAC(nn.Module):
 
 
 class PolicyNetwork_SAC(nn.Module):
-    def __init__(self, n_inputs = 17, n_outputs = 6) -> None:
+    def __init__(self, n_inputs = 17, n_outputs = 6, hidden = 256) -> None:
         super().__init__()
 
-        self.linear1 = nn.Linear(n_inputs, 256)
-        self.linear2 = nn.Linear(256, 256)
+        self.linear1 = nn.Linear(n_inputs, hidden)
+        self.linear2 = nn.Linear(hidden, hidden)
 
-        self.mean_linear = nn.Linear(256, n_outputs)
-        self.log_std_linear = nn.Linear(256, n_outputs) 
+        self.mean_linear = nn.Linear(hidden, n_outputs)
+        self.log_std_linear = nn.Linear(hidden, n_outputs) 
         
         # inizialization of weights in a xavier uniform manner and bias to zero
         gain = torch.nn.init.calculate_gain('relu')
@@ -150,6 +150,36 @@ class HalfCheetah_NN(nn.Module):
     
 class Hopper_NN_PPO(nn.Module):
     def __init__(self, n_inputs = 11, n_outputs = 3) -> None:
+        super().__init__()
+
+        self.backbone = nn.Sequential(
+            nn.Linear(n_inputs, 64) , nn.ReLU(),
+            )
+
+        self.actor_FC = nn.Sequential(
+            nn.Linear(64, 64) , nn.ReLU(),
+        )
+
+        self.alpha_head = nn.Sequential(nn.Linear(64, n_outputs), nn.Softplus())
+        self.beta_head  = nn.Sequential(nn.Linear(64, n_outputs), nn.Softplus())
+
+        self.critic = nn.Sequential(
+            nn.Linear(64, 32), nn.ReLU(),
+            nn.Linear(32, 1)
+        )
+
+    def forward(self, x):
+        x = self.backbone(x)
+        V = self.critic(x)
+
+        x = self.actor_FC(x)
+        alpha = self.alpha_head(x) + 1
+        beta  = self.beta_head(x)  + 1
+
+        return alpha, beta, V
+    
+class Swimmer_NN_PPO(nn.Module):
+    def __init__(self, n_inputs = 8, n_outputs = 2) -> None:
         super().__init__()
 
         self.backbone = nn.Sequential(

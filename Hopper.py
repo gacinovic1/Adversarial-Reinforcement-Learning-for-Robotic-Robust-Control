@@ -85,7 +85,7 @@ def Perturbate_env(env, pert = 0.0, frict = 1.0):
 
     model = env.unwrapped.model
     floor_id = mujoco.mj_name2id(model,mujoco.mjtObj.mjOBJ_GEOM,"floor")
-    print(f'original friction: {env.mj_model.geom_friction[env.ids['floor']]}', end='')
+    print(f'original friction: {env.mj_model.geom_friction[env.ids["floor"]]}', end='')
     for i in range(1):
         model.geom_friction[floor_id][i] = model.geom_friction[floor_id][i] * frict # sliding # [sliding, torsional, rolling]
     print(f' ---> new friction: {env.mj_model.geom_friction[env.ids['floor']]}')
@@ -158,10 +158,10 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0.0, frict = 1.0,
         ppo.load()
 
     if alg == 'RARL_SAC':
-        rarl_sac = SAC_RARL.RARL_SAC(player, opponent, env, print_flag=False, lr_Q=3e-4, lr_pi=1e-4, name='Hopper_Adversarial_SAC_model')
+        rarl_sac = SAC_RARL.RARL_SAC(player, opponent, env, print_flag=False, lr_Q=3e-4, lr_pi=1e-4, name='Models/Hopper/Adversarial_models/Hopper_Adversarial_SAC_model')
         if train: rarl_sac.train(player_episode=10, 
                              opponent_episode=4, 
-                             episodes=400, 
+                             episodes=700, 
                              epoch = 1,
                              mini_batch=128, 
                              max_steps_rollouts=1024, 
@@ -169,14 +169,15 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0.0, frict = 1.0,
         rarl_sac.load()
         
     elif alg == 'SAC':
-        sac = SAC_RARL.SAC(player['Q1_target'], player['Q2_target'], player['Q1'], player ['Q2'], player['policy'], env, print_flag=False, lr_Q=3e-4, lr_pi=1e-4, name='Hopper_model_SAC')
-        if train: sac.train(episodes=1000, epoch=1, mini_batch=128, max_steps_rollouts=1024, continue_prev_train=False)
+        sac = SAC_RARL.SAC(player['Q1_target'], player['Q2_target'], player['Q1'], player ['Q2'], player['policy'], env, print_flag=False, lr_Q=3e-4, lr_pi=1e-4, name='Models/Hopper/Ideal_models/Hopper_model_SAC')
+        if train: sac.train(episodes=500, epoch=1, mini_batch=128, max_steps_rollouts=1024, continue_prev_train=False)
         sac.load()
 
-    env.close()
+    #env.close()
 
     # render the simulation if needed
-    if not render: return
+    #if not render: return
+    if train: return
     
     # choise the algorithm for run the simulation
     RL = ppo     if alg == 'PPO' else \
@@ -188,7 +189,7 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0.0, frict = 1.0,
     new_mass, new_friction = Perturbate_env(env, pm_pert, frict)
 
     # choise the algorithm for run the simulation
-    RL = ppo if alg == 'PPO' else rarl_ppo
+    #RL = ppo if alg == 'PPO' else rarl_ppo
     
     list_for_file = []
     for i in range(4):
@@ -220,14 +221,14 @@ if __name__ == '__main__':
     #main(render=False, train=True, alg = 'RARL_PPO') # train with RARL
     #main(render=True, train=False, pm_pert = 0, alg = 'PPO') # test PPO
     #main(render=True, train=False, pm_pert = 0.0, alg = 'RARL_PPO') # test RARL PPO
-    #main(render=False, train=True, pm_pert = 1, alg = 'RARL_SAC') # test SAC
-  #  main(render=False, train=True, pm_pert = 1, alg = 'RARL_SAC') # test RARL SAC
+    main(render=False, train=True, pm_pert = 1, alg = 'SAC') # test SAC
+    #main(render=False, train=True, pm_pert = 1, alg = 'RARL_SAC') # test RARL SAC
  
     
-    for path, alg in zip(['Idela-models/Hopper_PPO_2', 'Adversarial_models/Hopper_Adversarial_PPO_2'], ['PPO', 'RARL_PPO']): #zip(['Adversarial_models/Hopper_Adversarial_PPO_2'], ['RARL_PPO']): # zip(['Idela-models/Hopper_PPO_2'], ['PPO'])
+    for path, alg in zip(['Ideal-models/Hopper_model_SAC', 'Adversarial_models/Hopper_Adversarial_SAC_model'], ['SAC', 'RARL_SAC']): #zip(['Adversarial_models/Hopper_Adversarial_PPO_2'], ['RARL_PPO']): # zip(['Idela-models/Hopper_PPO_2'], ['PPO'])
         for pert in [-0.9, -0.7, -0.5, -0.3, -0.1, 0.0 ,0.2, 0.5, 0.7, 0.9, 1]: #  
             for frict in [0.0, 0.1, 0.4, 0.8, 1.0, 1.3, 1.7, 2.0, 2.2, 2.5]:
-                main(render=True, train=False, pm_pert = pert, frict=frict, alg = alg, model_to_load = f'Models/Hopper/' + path, heatmap = True) # test RARL_PPO
+                main(render=False, train=False, pm_pert = pert, frict=frict, alg = alg, model_to_load = f'Models/Hopper/' + path, heatmap = True) # test RARL_PPO
     
 
     

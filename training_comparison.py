@@ -288,7 +288,7 @@ def run_comparison(alg_base: str,alg_rarl: str,environment: str,n_seeds: int = 1
 
 def main():
     
-    run_comparison(alg_base='PPO',alg_rarl='RARL_PPO',environment='Walker2d', n_seeds=3,episodes=200)    
+    run_comparison(alg_base='PPO',alg_rarl='RARL_PPO',environment='Walker2d', n_seeds=5,episodes=500)    
     
 if __name__ == '__main__':
 

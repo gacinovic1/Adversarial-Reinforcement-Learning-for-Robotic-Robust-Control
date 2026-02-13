@@ -59,11 +59,11 @@ class SAC():
                  lr_pi          : float = 1e-4,
                  gamma          : float = 0.99,
                  tau        : float = 0.005,
-                 log_alpha  : float = -1.60944,  # to start with alpha = 0.2  log= -1.60944,
+                 log_alpha  : float = -1.60944,  # -1.60944 to start with alpha = 0.2  log= -1.60944,
                  lr_alpha    : float = 1e-4,
                  epsilon        : float = 1e-6,
                  print_flag     : bool  = True,
-                 save_interval  : int   = 10,
+                 save_interval  : int   = 100,
                  start_policy   : int   = 0,
                  capacity      : int   = 1_000_000,
                  freq_upd      : int   = 1,
@@ -301,7 +301,6 @@ class SAC():
             if(np.mod(episode, self.save_interval) == 0):
                 self.save()    
             
-        self.save()
         return rewards
 
 
@@ -363,11 +362,11 @@ class RARL_SAC():
                  lr_pi          : float = 1e-3,
                  gamma          : float = 0.99,
                  tau        : float = 0.005,
-                 log_alpha  : float = -1.60944,  # to start with alpha = 0.2
+                 log_alpha  : float = -1.60944,  #-1.60944 to start with alpha = 0.2
                  lr_alpha    : float = 1e-4,
                  epsilon        : float = 1e-6,
                  print_flag     : bool  = True,
-                 save_interval  : int   = 10,
+                 save_interval  : int   = 100,
                  start_policy   : int   = 0,
                  capacity      : int   = 1_000_000,
                  freq_upd      : int   = 1,
@@ -421,7 +420,7 @@ class RARL_SAC():
 
     def _get_dist(self, par1, par2) -> torch.distributions:
         if self.distribution == 'Normal':
-            dist = Beta(par1, par2)
+            dist = Normal(par1, par2)
         return dist
 
     def swap_actor(self) -> dict:
@@ -472,7 +471,7 @@ class RARL_SAC():
         new_log_prob = dist.log_prob(action_pre).sum(dim=-1, keepdim=True)       
         new_log_prob -= torch.log((1-action.pow(2)) + self.epsilon).sum(dim=-1, keepdim=True)
         
-        return action, action, new_log_prob
+        return action, action_pre, new_log_prob
             
 
        # method for updating the actor/critic using SAC loss
@@ -584,6 +583,8 @@ class RARL_SAC():
 
         self.player_dict  ['max_episode'] = player_episode
         self.opponent_dict['max_episode'] = opponent_episode
+        
+        episode_player = 0
 
         # repeat for the number of episodes
         for episode in range(episodes):
@@ -657,19 +658,17 @@ class RARL_SAC():
                     done = False
                     continue
                 
-            print(f"[T]: end episode {episode} windows: | {window} | mean rewards: {mean_rew/tranches}")
+            print(f"{current_actor_dict['icon']}: end episode {episode} windows: | {window} | mean rewards: {mean_rew/tranches}")
             
-            if current_actor_dict['actor'] == self.opponent:
-               rewards.append(-mean_rew/tranches)
-            else:
+            if current_actor_dict['actor'] == self.player and episode_player <500:
                 rewards.append(mean_rew/tranches)
+                episode_player +=1
                 
             if(np.mod(episode, self.save_interval) == 0):
                 self.save()
                 
             current_actor_dict['episode_count'] += 1    
             
-        self.save()
         return rewards
 
 

@@ -543,6 +543,8 @@ class RARL_PPO():
 
         self.player_dict  ['max_episode'] = player_episode
         self.opponent_dict['max_episode'] = opponent_episode
+        
+        episode_player = 0
 
         # repeat for the number of episodes
         for episode in range(episodes):
@@ -587,7 +589,9 @@ class RARL_PPO():
 
             print(f" | {tranchs} | mean rewards: {mean_rew/tranchs}")
             
-            rewards.append(mean_rew/tranchs)
+            if current_actor_dict['actor'] == self.player and episode_player <500:
+                rewards.append(mean_rew/tranchs)
+                episode_player +=1
             
             if self.print_flag: print(f"{current_actor_dict['icon']}: end roll-outs {episode} ")
 

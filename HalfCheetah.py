@@ -7,12 +7,42 @@ from torch.distributions import Normal
 from torch.distributions import Beta
 
 import PPO_RARL as PPO
-import architectures as net
 import SAC_RARL
 import ENV_Wrapper
+import architectures as net
 
+import csv
 
+class HalfCetah_NN(nn.Module):
+    def __init__(self, n_inputs = 17, n_outputs = 6) -> None:
+        super().__init__()
 
+        self.backbone = nn.Sequential(
+            nn.Linear(n_inputs, 256) , nn.ReLU(),
+            )
+
+        self.actor_FC = nn.Sequential(
+            nn.Linear(256, 128) , nn.ReLU(),
+            nn.Linear(128, 128) , nn.ReLU(),
+        )
+
+        self.alpha_head = nn.Sequential(nn.Linear(128, n_outputs), nn.Softplus())
+        self.beta_head  = nn.Sequential(nn.Linear(128, n_outputs), nn.Softplus())
+
+        self.critic = nn.Sequential(
+            nn.Linear(256, 128), nn.ReLU(),
+            nn.Linear(128, 1)
+        )
+
+    def forward(self, x):
+        x = self.backbone(x)
+        V = self.critic(x)
+
+        x = self.actor_FC(x)
+        alpha = self.alpha_head(x) + 1
+        beta  = self.beta_head(x)  + 1
+
+        return alpha, beta, V
     
 class HalfCheetah_env_pert(ENV_Wrapper.ENV_Adversarial_wrapper):
     def __init__(self, env_name : str,
@@ -26,8 +56,8 @@ class HalfCheetah_env_pert(ENV_Wrapper.ENV_Adversarial_wrapper):
         self.mj_model, self.mj_data = self.env.unwrapped.model, self.env.unwrapped.data
 
         self.ids = {}
-        self.ids['back_foot'] = self.mj_model.body("bfoot").id
-        self.ids['front_foot'] = self.mj_model.body("ffoot").id
+        self.ids['bacck_foot'] = self.mj_model.body("bfoot").id
+        self.ids['fron_foot' ] = self.mj_model.body("ffoot").id
         self.ids['floor'] = self.mj_model.geom("floor").id
 
 
@@ -35,8 +65,8 @@ class HalfCheetah_env_pert(ENV_Wrapper.ENV_Adversarial_wrapper):
     def perturbate_env(self, o_act):
         # apply forces on feats
         o_act = self._preprocess_action(o_act)
-        self.mj_data.xfrc_applied[self.ids['back_foot']] = np.array([o_act[0], o_act[1], 0.0, 0.0, 0.0, 0.0])
-        self.mj_data.xfrc_applied[self.ids['front_foot']] = np.array([o_act[2], o_act[3], 0.0, 0.0, 0.0, 0.0])
+        self.mj_data.xfrc_applied[self.ids['bacck_foot']] = np.array([o_act[0], o_act[1], 0.0, 0.0, 0.0, 0.0])
+        self.mj_data.xfrc_applied[self.ids['fron_foot' ]] = np.array([o_act[2], o_act[3], 0.0, 0.0, 0.0, 0.0])
         return
 
     def step(self, action, action_adv = None):
@@ -54,48 +84,56 @@ class HalfCheetah_env_pert(ENV_Wrapper.ENV_Adversarial_wrapper):
       state, info = self.env.reset()
       return self._postprocess_state(state), info
 
-def Test(RL, env, steps = 10_000):
-    
-    env.update_running_stats = False 
+
+def Test(RL, env, steps = 10_000) -> tuple[float, int, int, list[float, int]]:
     s, _ = env.reset()
+    rew_list = [(0, 0)]
     reward = 0
-    attempts = 1
+    attempts = 0
     for i in range(steps):
         env.update_running_stats = False 
         s, r, term, tronc, _ = env.step(RL.act(s))
         reward += r
-        if term or tronc:
+        if term or tronc: 
             s, _ = env.reset()
             attempts += 1
+            rew_list.append((reward - np.sum([r[0] for r in rew_list]), i+1 - np.sum([s[1] for s in rew_list])))
         if np.mod(i, 1000) == 0: print('#', end='', flush=True)
     env.close()
 
-    print(f'---> rewards: {reward/attempts} | gained in {attempts} attempts')
+    print(f'\n---> rewards: {reward/attempts} | gained in {attempts} attempts')
 
-def Perturbate_env(env, pert = 0):
-    if pert == 0: return
-    # must be perturbed the walker model
+    return (reward, attempts, steps, rew_list[1:])
+
+def Perturbate_env(env, pert = 0, frict = 1.0):
 
     # modify masses
-    for i in [0, 1, 2, 3, 4, 5]:
+    for i in [3]:
       print(f"Original {i} mass: {env.unwrapped.model.body_mass[i]}", end='')
       env.unwrapped.model.body_mass[i] += env.unwrapped.model.body_mass[i]*pert
       print(f" ---> New {i} mass: {env.unwrapped.model.body_mass[i]}")
+      new_mass = env.unwrapped.model.body_mass[i].sum()
 
+    model = env.unwrapped.model
+    floor_id = mujoco.mj_name2id(model,mujoco.mjtObj.mjOBJ_GEOM,"floor")
     print(f'original friction: {env.mj_model.geom_friction[env.ids['floor']]}', end='')
-    env.mj_model.geom_friction[env.ids['floor']] = [0.01, 0.001, 0.001] # [sliding, torsional, rolling]
+    for i in range(1):
+        model.geom_friction[floor_id][i] = model.geom_friction[floor_id][i] * frict # sliding # [sliding, torsional, rolling]
     print(f' ---> new friction: {env.mj_model.geom_friction[env.ids['floor']]}')
+    new_friction = sum(model.geom_friction[floor_id])
 
-def main(render = True, train = False, alg = 'PPO', pm_pert = 0):
-    # init environment and neural network
+    return new_mass, new_friction
+
+def main(render = True, train = False, alg = 'RARL', pm_pert = 0, frict = 1.0, model_to_load = '', heatmap = False):
+    
     if render:
         render_mode = ENV_Wrapper.ENV_Adversarial_wrapper.HUMAN_RENDER
         
     # init environment and neural networks
-    if alg in ['PPO', 'RARL_PPO']:
+    if alg in ['PPO', 'RARL_PPO', 'RARL']:
         
-        player = net.HalfCheetah_NN()
-        opponent = net.HalfCheetah_NN(n_outputs=4) # 2 output for X, Y forces on both feat
+        player = net.Walker_NN_PPO()
+        opponent = net.Walker_NN_PPO(n_outputs=4) # 2 output for X, Y forces on both feat
     
     if alg in ['SAC', 'RARL_SAC']:
         
@@ -114,14 +152,14 @@ def main(render = True, train = False, alg = 'PPO', pm_pert = 0):
             'Q2'    : net.SoftQNetwork_SAC(n_inputs = 17 + 4)
         }
 
-    if alg in ['PPO', 'SAC'] or (alg in ['RARL_PPO', 'RARL_SAC'] and not train):
+    if alg in ['SAC', 'PPO'] or (alg in ['RARL_PPO', 'RARL_SAC'] and not train):
         
         env = ENV_Wrapper.ENV_wrapper(
             env_name='HalfCheetah-v5',
             act_min=-1.0,
             act_max=1.0,
             render_mode=render_mode if render else None,
-            is_norm_wrapper=True, algorithm= alg)
+            is_norm_wrapper=False, algorithm= alg)
         
     else:
 
@@ -130,28 +168,29 @@ def main(render = True, train = False, alg = 'PPO', pm_pert = 0):
             action_range=[-1.0, 1.0],
             adv_action_range=[-0.01, 0.01],
             render_mode=render_mode if render else None,
-            is_norm_wrapper=True, algorithm= alg)
+            is_norm_wrapper=False, algorithm= alg)
+        
 
     # init the PPO or RARL_PPO algorithm
-    if alg == 'RARL_PPO':
-        rarl_ppo = PPO.RARL_PPO(player, opponent, env, print_flag=False, lr_player=1e-4, name='Models/HalfCitah_models/Adversarial_models/HalfCheetah_adversarial')
+    if alg == 'RARL':
+        rarl_ppo = PPO.RARL_PPO(player, opponent, env, print_flag=False, lr_player=1e-3, name='Models/HalfCheetah_models/Adversarial_models/HalfCheetah_adversarial_2')
         if train: rarl_ppo.train(player_episode=10,
                              opponent_episode=4,
-                             episodes=650,
+                             episodes=700,
                              mini_bach=128,
                              max_steps_rollouts=2048,
-                             continue_prev_train=True)
+                             continue_prev_train=False)
         rarl_ppo.load()
     elif alg == 'PPO':
         ppo = PPO.PPO(player, env, print_flag=False, lr=1e-4, name='Models/HalfCitah_models/Ideal_models/HalfCheetah')
         if train: ppo.train(episodes=500, mini_bach=128, max_steps_rollouts=2048, continue_prev_train=True)
         ppo.load()
-    
+        
     if alg == 'RARL_SAC':
-        rarl_sac = SAC_RARL.RARL_SAC(player, opponent, env, print_flag=False, lr_Q=3e-4, lr_pi=1e-4, name='HalfCheetah_Adversarial_SAC_model')
+        rarl_sac = SAC_RARL.RARL_SAC(player, opponent, env, print_flag=False, lr_Q=3e-4, lr_pi=1e-4, name = f'Models/HalfCheetah_models/Adversarial_models/HalfCheetah_adversarial_model_SAC')
         if train: rarl_sac.train(player_episode=10, 
                              opponent_episode=4, 
-                             episodes=1000, 
+                             episodes=700, 
                              epoch = 1,
                              mini_batch=128, 
                              max_steps_rollouts=1024, 
@@ -159,28 +198,55 @@ def main(render = True, train = False, alg = 'PPO', pm_pert = 0):
         rarl_sac.load()
         
     elif alg == 'SAC':
-        sac = SAC_RARL.SAC(player['Q1_target'], player['Q2_target'], player['Q1'], player ['Q2'], player['policy'], env, print_flag=False, lr_Q=3e-4, lr_pi=1e-4, name='HalfCheetah_model_SAC')
-        if train: sac.train(episodes=1000, epoch=1, mini_batch=128, max_steps_rollouts=1024, continue_prev_train=False)
+        sac = SAC_RARL.SAC(player['Q1_target'], player['Q2_target'], player['Q1'], player ['Q2'], player['policy'], env, print_flag=False, lr_Q=3e-4, lr_pi=1e-4, name='Models/HalfCheetah_models/Ideal_models/HalfCheetah_model_SAC')
+        if train: sac.train(episodes=500, epoch=1, mini_batch=128, max_steps_rollouts=1024, continue_prev_train=False)
         sac.load()
 
-    env.close()
 
-    # render the simulation if needed
-    if not render: return
+    if train: env.close(); return
 
     # perturbate the modle paramether
-    Perturbate_env(env, pm_pert)
+    new_mass, new_friction = Perturbate_env(env, pm_pert, frict)
 
     # choise the algorithm for run the simulation
     RL = ppo  if alg == 'PPO' else \
         rarl_ppo if alg == 'RARL_PPO' else\
         sac if alg == 'SAC' else \
         rarl_sac 
-        
-    Test(RL, env, 10_000)
+    
+    list_for_file = []
+    for i in range(4):
+        rew, attempts, steps, rew_list = Test(RL, env, 3_000)
+        list_for_file.extend([{
+            'algorithm' : alg,
+            'Mass' : new_mass,
+            'Friction': new_friction,
+            'steps' : elem[1],
+            'reward' : elem[0],
+            'model' : RL.model_name
+            } for elem in rew_list])
+    token = model_to_load.split("/")[-1]
+
+    perturbation = '' + ('Mass_' if pm_pert != 0.0 else '') + ('Friction_' if frict != 1.0 else '')
+
+    if not heatmap:
+        file = f'Files/HalfCheetah/{alg}_{perturbation}{new_mass:0.4f}_{new_friction:0.4f}_{token}.csv'
+    else:
+        file = f'Files/HalfCheetah/heatmap/{alg}_{perturbation}{new_mass:0.4f}_{new_friction:0.4f}_{token}_heatmap.csv'
+    
+    with open(file, 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=[k for k in list_for_file[0].keys()])
+        writer.writeheader()
+        writer.writerows(list_for_file)
 
 if __name__ == '__main__':
-    #main(render=False, train=True, alg = 'PPO') # train with PPO
-    #main(render=False, train=True, alg = 'RARL') # train with RARL
- #   main(render=True, train=False, pm_pert = -0.1, alg = 'PPO') # test PPO
-    main(render=False, train=True, pm_pert = -0.1, alg = 'SAC') # test SAC
+    #main(render=False, train=True, alg = 'SAC') # train with PPO
+   # main(render=False, train=True, alg = 'RARL_SAC') # train with RARL
+    #main(render=True, train=False, pm_pert = -0.1, alg = 'PPO') # test PPO
+    #main(render=True, train=False, pm_pert = -0.1, alg = 'RARL') # test RARL
+
+    for path, alg in zip(['Models/HalfCheetah_models/Ideal-models/HalfCheetah_model_SAC', 'Models/HalfCheetah_models/Adversarial_models/HalfCheetah_adversarial_model_SAC'], ['SAC', 'RARL_SAC']):
+        for pert in [-0.9, -0.7, -0.5, -0.3, -0.1, 0.0 ,0.2, 0.5, 0.7, 0.9, 1]: #  
+            for frict in [0.0, 0.1, 0.4, 0.8, 1.0, 1.3, 1.7, 2.0, 2.2, 2.5]:
+                main(render=False, train=False, pm_pert = pert, frict=frict, alg = alg, model_to_load =  path, heatmap = True) # test RARL_PPO
+                

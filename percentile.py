@@ -18,15 +18,12 @@ from Inverted_pendulum import CartPole
 
 
 def percentile_curve(rewards):
+    
     rewards = np.sort(rewards)
     percentiles = np.linspace(0, 100, len(rewards))
     return percentiles, rewards
 
 def run_percentile_test(environment: str,alg: str,n_tests: int = 10):
-    """
-    environment : es. 'Walker2d'
-    alg         : 'PPO' oppure 'SAC'
-    """
 
     assert alg in ['PPO', 'SAC']
 
@@ -36,12 +33,11 @@ def run_percentile_test(environment: str,alg: str,n_tests: int = 10):
     rewards_rarl = []
 
     for seed in range(n_tests):
-        # ---------- SEED ----------
+
         np.random.seed(seed)
         random.seed(seed)
         torch.manual_seed(seed)
 
-        # ---------- ENV (NO ADVERSARY) ----------
         env = ENV_Wrapper.ENV_wrapper(
             env_name=f'{environment}-v5',
             act_min=-1.0,
@@ -51,7 +47,7 @@ def run_percentile_test(environment: str,alg: str,n_tests: int = 10):
             algorithm=alg
         )
         Walker.Perturbate_env(env, 0.7, 1.4)
-        # ---------- BASELINE ----------
+
         if alg == 'PPO':
             player = net.Walker_NN_PPO()
             agent = PPO.PPO(
@@ -81,7 +77,6 @@ def run_percentile_test(environment: str,alg: str,n_tests: int = 10):
         reward = Walker.Test(agent, env, steps = 1_000)[0]
         rewards_base.append(reward)
 
-        # ---------- RARL (NO ADVERSARY AT TEST) ----------
         if alg == 'PPO':
             player = net.Walker_NN_PPO()
             opponent = net.Walker_NN_PPO(n_outputs=4)
@@ -122,7 +117,6 @@ def run_percentile_test(environment: str,alg: str,n_tests: int = 10):
         reward = Walker.Test(agent_rarl, env, steps = 1_000)[0]
         rewards_rarl.append(reward)
 
-    # ---------- PLOT ----------
     p_b, r_b = percentile_curve(rewards_base)
     p_r, r_r = percentile_curve(rewards_rarl)
 
@@ -141,10 +135,7 @@ def run_percentile_test(environment: str,alg: str,n_tests: int = 10):
     
 def main():
     
-    run_percentile_test(
-        environment='Walker2d',
-        alg='PPO', n_tests = 100
-    )   
+    run_percentile_test(environment='Walker2d',alg='PPO', n_tests = 100)   
     
 if __name__ == '__main__':
 

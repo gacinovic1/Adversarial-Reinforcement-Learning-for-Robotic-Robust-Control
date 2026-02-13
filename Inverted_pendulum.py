@@ -5,6 +5,7 @@ import torch.nn.functional as F
 import numpy as np
 from torch.distributions import Beta
 import mujoco
+import mujoco
 
 import PPO_RARL as PPO
 import SAC_RARL as SAC 
@@ -26,6 +27,7 @@ class CartPole(gym.Wrapper):
             self.env = gym.make('InvertedPendulum-v5', reset_noise_scale=0.1)
 
     def _preprocess_action(self, action) -> float:
+        if self.algorithm in  ['PPO', 'RARL_PPO', 'RARL']:
         if self.algorithm in  ['PPO', 'RARL_PPO', 'RARL']:
             return np.asarray(action.squeeze(0).cpu()) * 6 - 3 # scale action in range [-3, 3]
         if self.algorithm == 'SAC' or self.algorithm == 'RARL_SAC':
@@ -75,6 +77,8 @@ def Test(RL, env, steps = 10_000) -> tuple[float, int, int, list[float, int]]:
 
 def Perturbate_env(env, pert = 0.0, frict = 1.0):
     # must be perturbed the walker model
+def Perturbate_env(env, pert = 0.0, frict = 1.0):
+    # must be perturbed the walker model
 
     # modify pendolum mass
     
@@ -83,7 +87,22 @@ def Perturbate_env(env, pert = 0.0, frict = 1.0):
       env.unwrapped.model.body_mass[i] += env.unwrapped.model.body_mass[i]*pert
       print(f" ---> New {i} mass: {env.unwrapped.model.body_mass[i]}")
       new_mass = env.unwrapped.model.body_mass[i].sum()
+    
+    for i in [2]:
+      print(f"Original {i} mass: {env.unwrapped.model.body_mass[i]}", end='')
+      env.unwrapped.model.body_mass[i] += env.unwrapped.model.body_mass[i]*pert
+      print(f" ---> New {i} mass: {env.unwrapped.model.body_mass[i]}")
+      new_mass = env.unwrapped.model.body_mass[i].sum()
 
+    model = env.unwrapped.model
+    floor_id = mujoco.mj_name2id(model,mujoco.mjtObj.mjOBJ_GEOM,"floor")
+    #model.geom_friction[floor_id] = np.array([0.01, 0.01, 0.01])# [sliding, torsional, rolling]
+    model.geom_friction[floor_id][0] = model.geom_friction[floor_id][0] * frict # sliding
+    new_friction = model.geom_friction[floor_id][0]
+    
+    return new_mass, new_friction
+
+def main(render = True, train = False, alg = 'RARL', pm_pert = 0.0, frict = 1.0, model_to_load = '', heatmap = False, perturbation = "Mass"):
     model = env.unwrapped.model
     floor_id = mujoco.mj_name2id(model,mujoco.mjtObj.mjOBJ_GEOM,"floor")
     #model.geom_friction[floor_id] = np.array([0.01, 0.01, 0.01])# [sliding, torsional, rolling]
@@ -105,18 +124,18 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0.0, frict = 1.0,
     if alg in ['SAC', 'RARL_SAC']:
         
         player = {
-            'policy': net.PolicyNetwork_SAC(),
-            'Q1_target': net.SoftQNetwork_SAC(),
-            'Q2_target': net.SoftQNetwork_SAC(),
-            'Q1'    : net.SoftQNetwork_SAC(),
-            'Q2'    : net.SoftQNetwork_SAC()
+            'policy': net.PolicyNetwork_SAC(n_inputs=4, n_outputs=1),
+            'Q1_target': net.SoftQNetwork_SAC(n_inputs=5, n_outputs=1),
+            'Q2_target': net.SoftQNetwork_SAC(n_inputs=5, n_outputs=1),
+            'Q1'    : net.SoftQNetwork_SAC(n_inputs=5, n_outputs=1),
+            'Q2'    : net.SoftQNetwork_SAC(n_inputs=5, n_outputs=1)
         }
         opponent = {
-            'policy': net.PolicyNetwork_SAC(),
-            'Q1_target': net.SoftQNetwork_SAC(),
-            'Q2_target': net.SoftQNetwork_SAC(),
-            'Q1'    : net.SoftQNetwork_SAC(),
-            'Q2'    : net.SoftQNetwork_SAC()
+            'policy': net.PolicyNetwork_SAC(n_inputs=4, n_outputs=1),
+            'Q1_target': net.SoftQNetwork_SAC(n_inputs=5, n_outputs=1),
+            'Q2_target': net.SoftQNetwork_SAC(n_inputs=5, n_outputs=1),
+            'Q1'    : net.SoftQNetwork_SAC(n_inputs=5, n_outputs=1),
+            'Q2'    : net.SoftQNetwork_SAC(n_inputs=5, n_outputs=1)
         }
 
     # init the PPO or RARL_PPO algorithm
@@ -135,27 +154,26 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0.0, frict = 1.0,
         ppo.load()
     
     if alg == 'RARL_SAC':
-        rarl_sac = SAC.RARL_SAC(player, opponent, env, print_flag=False, lr_Q=3e-4, lr_player=1e-4, name='Inverted_Pendulum_Adversarial_SAC_model')
+        rarl_sac = SAC.RARL_SAC(player, opponent, env, print_flag=False, lr_Q=3e-4, lr_pi=1e-4, name='Models/CartPole_models/Adversarial_models/CartPole_Adversarial_model_RARL_SAC')
         if train: rarl_sac.train(player_episode=10, 
                              opponent_episode=4, 
-                             episodes=1000, 
+                             episodes=141, 
                              epoch = 1,
-                             mini_bach=128, 
+                             mini_batch=128, 
                              max_steps_rollouts=1024, 
                              continue_prev_train=False)
         rarl_sac.load()
         
     elif alg == 'SAC':
-        sac = SAC.SAC(player['Q1_target'], player['Q2_target'], player['Q1'], player ['Q2'], player['policy'], env, print_flag=False, lr_Q=3e-4, lr_pi=1e-4, name='Inverted_Pendulum_model_SAC')
-        if train: sac.train(episodes=1000, epoch=1, mini_batch=128, max_steps_rollouts=1024, continue_prev_train=False)
+        sac = SAC.SAC(player['Q1_target'], player['Q2_target'], player['Q1'], player ['Q2'], player['policy'], env, print_flag=False, lr_Q=3e-4, lr_pi=1e-4, name='Models/CartPole_models/Ideal_models/CartPole_model_SAC')
+        if train: sac.train(episodes=200, epoch=1, mini_batch=128, max_steps_rollouts=1024, continue_prev_train=False)
         sac.load()
 
-    env.close()
 
-    # render the simulation if needed
-    if not render: return
+    if train : env.close(); return
 
     # perturbate the model paramether
+    new_mass, new_friction = Perturbate_env(env, pm_pert, frict)
     new_mass, new_friction = Perturbate_env(env, pm_pert, frict)
 
     # choise the algorithm for run the simulation
@@ -167,8 +185,12 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0.0, frict = 1.0,
     list_for_file = []
     for i in range(4):
         rew, attempts, steps, rew_list = Test(RL, env, 3_000)
+    for i in range(4):
+        rew, attempts, steps, rew_list = Test(RL, env, 3_000)
         list_for_file.extend([{
             'algorithm' : alg,
+            'Mass' : new_mass,
+            'Friction': new_friction,
             'Mass' : new_mass,
             'Friction': new_friction,
             'steps' : elem[1],
@@ -184,7 +206,7 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0.0, frict = 1.0,
         file = f'Files/InvertedPendulum/{alg}_{perturbation}{new_mass}_{new_friction}_{token}.csv'
         
     else:
-        file = f'Files/InvertedPendulum/heatmap_2/{alg}_{perturbation}{new_mass:04f}_{new_friction:0.4f}_{token}_heatmap.csv'
+        file = f'Files/InvertedPendulum/heatmap/{alg}_{perturbation}_{new_mass:04f}_{new_friction:0.4f}_{token}_heatmap.csv'
     
     with open(file, 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=[k for k in list_for_file[0].keys()])
@@ -195,10 +217,13 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0.0, frict = 1.0,
 if __name__ == '__main__':
     #for pert in [-0.9, -0.5, -0.1, 0, 0.1, 0.5, 1, 2]:
     #    main(render=False, train=True, pm_pert = pert, alg = 'SAC', model_to_load='Models/CartPole_models/Ideal_models/CartPole_model_1')
+    #for pert in [-0.9, -0.5, -0.1, 0, 0.1, 0.5, 1, 2]:
+    #    main(render=False, train=True, pm_pert = pert, alg = 'SAC', model_to_load='Models/CartPole_models/Ideal_models/CartPole_model_1')
     #main(render=False, train=True, pm_pert = 0.1, alg = 'SAC') # test SAC
+    #main(render=False, train=True, pm_pert = 0.1, alg = 'RARL_SAC') # test SAC
 
-    for file, alg in zip(['Ideal_models/CartPole_model_1', 'Adversarial_models/CartPole_Adversarial_model_1'], ['PPO', 'RARL_PPO']): # 
-        for pert in [-0.9, -0.7, -0.5, -0.3, -0.1, 0.0, 1, 4, 5, 7, 9, 11]:
-            for frict in [0.0, 0.5, 1.0, 1.5, 2.0, 3, 5, 9]:
-                main(render=True, train=False, pm_pert = pert, frict=frict, alg = alg, model_to_load = f'Models/CartPole_models/' + file, heatmap = True) # test RARL_PPO
+    for file, alg in zip(['Ideal_models/CartPole_model_SAC', 'Adversarial_models/CartPole_Adversarial_model_RARL_SAC'], ['SAC', 'RARL_SAC']): # 
+        for pert in [-0.9, -0.7, -0.5, -0.3, -0.1, 0.0, 1, 4, 5, 15, 20, 30]:
+            for frict in [0.0, 0.5, 1.0, 1.5, 2.0, 3, 5, 9, 12, 15, 20]:
+                main(render=False, train=False, pm_pert = pert, frict=frict, alg = alg, model_to_load = f'Models/CartPole_models/' + file, heatmap = True) # test RARL_PPO
         
