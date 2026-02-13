@@ -73,8 +73,8 @@ def Test(RL, env, steps = 10_000) -> tuple[float, int, int, list[float, int]]:
 
 
 def Perturbate_env(env, pert = 0.0, frict = 1.0):
-    #if pert == 0: return
-    # must be perturbed the walker model
+    
+    if pert == 0: return # must be perturbed the walker model
 
     # modify pendolum mass
     for i in [1, 2]:
@@ -173,11 +173,8 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0.0, frict = 1.0,
         if train: sac.train(episodes=500, epoch=1, mini_batch=128, max_steps_rollouts=1024, continue_prev_train=False)
         sac.load()
 
-    #env.close()
 
-    # render the simulation if needed
-    #if not render: return
-    if train: return
+    if train: env.close(); return
     
     # choise the algorithm for run the simulation
     RL = ppo     if alg == 'PPO' else \
@@ -188,8 +185,6 @@ def main(render = True, train = False, alg = 'RARL', pm_pert = 0.0, frict = 1.0,
     # perturbate the modle paramether
     new_mass, new_friction = Perturbate_env(env, pm_pert, frict)
 
-    # choise the algorithm for run the simulation
-    #RL = ppo if alg == 'PPO' else rarl_ppo
     
     list_for_file = []
     for i in range(4):
